@@ -284,6 +284,7 @@ function collectKey() {
 /* Tap key */
 
 key.addEventListener("click", collectKey);
+key.addEventListener("pointerup", (e) => { e.preventDefault(); collectKey(); });
 
 
 /* =========================
@@ -321,6 +322,7 @@ function talkToMara() {
 }
 
 girl.addEventListener("click", talkToMara);
+girl.addEventListener("pointerup", (e) => { e.preventDefault(); talkToMara(); });
 
 
 /* =========================
