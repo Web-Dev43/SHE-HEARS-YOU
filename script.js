@@ -37,12 +37,13 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
 
-const ambient=new THREE.HemisphereLight(0x8b8b95,0x101010,1.15);
+const ambient=new THREE.HemisphereLight(0xc8c8d0,0x303030,2.2);
 scene.add(ambient);
-const lamp=new THREE.PointLight(0xffe5c4,2.2,15);
+const lamp=new THREE.PointLight(0xffe5c4,5.5,22);
 lamp.position.set(0,3.3,0);
 lamp.castShadow=true;
 scene.add(lamp);
+const fill=new THREE.PointLight(0x9aa8ff,2.5,16); fill.position.set(-5,3,-4); scene.add(fill);
 
 function mat(color,rough=.85){return new THREE.MeshStandardMaterial({color,roughness:rough});}
 const floorMat=mat(0x24272a),wallMat=mat(0x1a1c1f),woodMat=mat(0x33271f),darkMat=mat(0x111315);
@@ -66,7 +67,7 @@ box("couch",5,.7,-4,3.8,1.4,1.7,mat(0x343238));
 box("table",-4,.9,3,2.5,.18,1.5,woodMat);
 for(const [x,z] of [[-4.9,2.45],[-3.1,2.45],[-4.9,3.55],[-3.1,3.55]]) box("table leg",x,.45,z,.15,.9,.15,woodMat);
 
-const key=box("KEY",0,.55,2,.35,.18,.75,mat(0xf0c84b, .45));
+const key=box("KEY",0,.55,2,.35,.18,.75,mat(0xffdf55, .25));
 key.rotation.y=.35;
 const keyRing=new THREE.Mesh(new THREE.TorusGeometry(.18,.045,10,24),mat(0xf0c84b,.35));
 keyRing.rotation.x=Math.PI/2;keyRing.position.set(.18,.68,2);scene.add(keyRing);
@@ -100,7 +101,7 @@ function setLook(dx,dy){
 function startGame(){
   gameStarted=true;startScreen.style.display="none";
   showMessage("She's somewhere in the house.");
-  if(innerWidth>600 && document.body.requestPointerLock) canvas.requestPointerLock();
+  if(innerWidth>600 && canvas.requestPointerLock) canvas.requestPointerLock();
 }
 startButton.addEventListener("click",startGame);
 
@@ -130,7 +131,7 @@ function updatePlayer(dt){
   camera.rotation.y=yaw;camera.rotation.x=pitch;
   forward.set(-Math.sin(yaw),0,-Math.cos(yaw));
   right.set(Math.cos(yaw),0,-Math.sin(yaw));
-  velocity.set(0,0,0).addScaledVector(forward,z*-1).addScaledVector(right,x);
+  velocity.set(0,0,0).addScaledVector(forward,-z).addScaledVector(right,x);
   if(velocity.lengthSq()>0)velocity.normalize().multiplyScalar(3.1*dt);
   camera.position.add(velocity);
   camera.position.x=Math.max(-8.8,Math.min(8.8,camera.position.x));
@@ -239,7 +240,7 @@ joystick.addEventListener("pointermove",e=>{if(e.buttons)setJoystick(e)});
 joystick.addEventListener("pointerup",resetJoystick);joystick.addEventListener("pointercancel",resetJoystick);
 
 canvas.addEventListener("pointerdown",e=>{
-  if(innerWidth<=600&&gameStarted&&e.pointerId!==1){lookPointer=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;canvas.setPointerCapture(e.pointerId)}
+  if(innerWidth<=600&&gameStarted){lookPointer=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;canvas.setPointerCapture(e.pointerId)}
 });
 canvas.addEventListener("pointermove",e=>{
   if(innerWidth<=600&&e.pointerId===lookPointer){setLook(e.clientX-lastLookX,e.clientY-lastLookY);lastLookX=e.clientX;lastLookY=e.clientY}
