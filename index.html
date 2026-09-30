@@ -40,7 +40,7 @@
   const d=document.getElementById("diagnostic");
   function loadGame(){
     const s=document.createElement("script");
-    s.src="script.js?v=25";
+    s.src="script.js?v=26";
     s.onload=function(){if(window.__threeReady){}};
     s.onerror=function(){d.style.display="block";d.textContent="SCRIPT FAILED TO LOAD\\nCheck script.js on GitHub Pages";};
     document.body.appendChild(s);
@@ -52,7 +52,7 @@
     s.onerror=function(){if(fallback)loadThree(fallback,null);else{d.style.display="block";d.textContent="THREE.JS FAILED TO LOAD\\nThe browser could not load the 3D engine.";}}
     document.head.appendChild(s);
   }
-  loadThree("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js","https://unpkg.com/three@0.180.0/build/three.min.js");
+  loadThree("https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.1/three.min.js","https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js");
 })();
 </script>
 <script>document.addEventListener("DOMContentLoaded",function(){const b=document.getElementById("startButton");const s=document.getElementById("startScreen");function go(e){e.preventDefault();s.style.display="none";window.dispatchEvent(new Event("she-start"));}b.addEventListener("touchend",go,{passive:false});b.addEventListener("click",go);});</script>
