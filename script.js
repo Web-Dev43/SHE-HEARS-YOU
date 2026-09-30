@@ -11,6 +11,7 @@ const closeChat=document.getElementById("closeChat");
 const chatForm=document.getElementById("chatForm");
 const chatInput=document.getElementById("chatInput");
 const chatMessages=document.getElementById("chatMessages");
+const actionButton=document.getElementById("actionButton");
 const joystick=document.getElementById("joystick");
 const stick=document.getElementById("stick");
 
@@ -74,9 +75,9 @@ function check(){
  if(!hasKey&&kd<1.2){hasKey=true;objectiveText.textContent="Escape through the door.";showMessage("You found the key.");addMara("You found that faster than I expected.")}
  const dd=Math.hypot(player.x,player.y-8);
  const md=Math.hypot(player.x-mara.x,player.y-mara.y);
- if(dd<1.5){interactHint.textContent=hasKey?"TAP / PRESS E TO ESCAPE":"THE DOOR IS LOCKED";interactHint.style.display="block"}
- else if(md<2){interactHint.textContent="TALK TO MARA";interactHint.style.display="block"}
- else interactHint.style.display="none";
+ if(dd<1.8){interactHint.textContent=hasKey?"INTERACT TO ESCAPE":"THE DOOR IS LOCKED";interactHint.style.display="block";actionButton.style.display=innerWidth<=600?"block":"none";actionButton.textContent=hasKey?"OPEN DOOR":"LOCKED"}
+ else if(md<2.5){interactHint.textContent="TALK TO MARA";interactHint.style.display="block";actionButton.style.display=innerWidth<=600?"block":"none";actionButton.textContent="TALK"}
+ else {interactHint.style.display="none";actionButton.style.display="none";}
 }
 
 function interact(){
@@ -92,6 +93,7 @@ function showMessage(t){messageText.textContent=t;clearTimeout(messageTimer);mes
 
 function openChat(){chat.classList.add("open");setTimeout(()=>chatInput.focus(),50)}
 chatButton.addEventListener("click",openChat);closeChat.addEventListener("click",()=>chat.classList.remove("open"));
+actionButton.addEventListener("click",interact);
 chatForm.addEventListener("submit",e=>{
  e.preventDefault();if(!started||ended)return;const t=chatInput.value.trim();if(!t)return;
  addPlayer(t);chatInput.value="";setTimeout(()=>addMara(reply(t)),350);
@@ -124,7 +126,7 @@ function render(){
   ctx.fillStyle="rgb("+shade+","+shade+","+shade+")";ctx.fillRect(x,h/2-wallH/2,Math.ceil(w/rays)+1,wallH);
  }
  drawSprite(mara.x,mara.y,0.9,"#9b415c","#f0c0aa");
- if(!hasKey)drawSprite(0,2,.35,"#f5d34b","#fff1a0");
+ if(!hasKey)drawKey(0,2);
  drawDoor();
 }
 function drawSprite(x,y,size,body,head){
@@ -135,6 +137,19 @@ function drawSprite(x,y,size,body,head){
  ctx.fillStyle=body;ctx.fillRect(sx-bw/2,h/2+bh*.05,bw,bh*.55);
  ctx.fillStyle=head;ctx.beginPath();ctx.arc(sx,h/2-bh*.18,bw*.38,0,Math.PI*2);ctx.fill();
  ctx.fillStyle="#161018";ctx.fillRect(sx-bw*.22,h/2-bh*.23,bw*.12,bw*.12);ctx.fillRect(sx+bw*.10,h/2-bh*.23,bw*.12,bw*.12);
+}
+function drawKey(x,y){
+ const dx=x-player.x,dy=y-player.y,dist=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)-player.a,rel=Math.atan2(Math.sin(ang),Math.cos(ang));
+ if(Math.abs(rel)>Math.PI/3||dist<.2)return;
+ const sx=(.5+rel/(Math.PI/3))*innerWidth;
+ const scale=Math.min(1.5,innerHeight/(dist*9));
+ const cy=innerHeight/2+innerHeight/(dist*5);
+ ctx.save();
+ ctx.translate(sx,cy);
+ ctx.rotate(.18);
+ ctx.strokeStyle="#f4cf42";ctx.lineWidth=Math.max(3,7*scale);ctx.beginPath();ctx.arc(-12*scale,0,9*scale,0,Math.PI*2);ctx.stroke();
+ ctx.strokeStyle="#ffe98a";ctx.lineWidth=Math.max(2,4*scale);ctx.beginPath();ctx.moveTo(-3*scale,0);ctx.lineTo(24*scale,0);ctx.lineTo(24*scale,7*scale);ctx.moveTo(13*scale,0);ctx.lineTo(13*scale,6*scale);ctx.stroke();
+ ctx.restore();
 }
 function drawDoor(){const dx=-player.x,dy=8-player.y,dist=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)-player.a,rel=Math.atan2(Math.sin(ang),Math.cos(ang));if(Math.abs(rel)<Math.PI/5){const sx=(.5+rel/(Math.PI/3))*innerWidth,hh=Math.min(innerHeight*.8,innerHeight/(dist*.9));ctx.fillStyle="#111";ctx.fillRect(sx-innerWidth*.07,innerHeight/2-hh/2,innerWidth*.14,hh)}}
 
