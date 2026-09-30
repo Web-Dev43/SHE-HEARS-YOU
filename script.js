@@ -30,7 +30,9 @@ const decor=[
 function resize(){canvas.width=Math.floor(innerWidth*devicePixelRatio);canvas.height=Math.floor(innerHeight*devicePixelRatio);canvas.style.width=innerWidth+"px";canvas.style.height=innerHeight+"px";ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
 addEventListener("resize",resize);resize();
 function startGame(e){if(e)e.preventDefault();if(started)return;started=true;startScreen.style.display="none";startScreen.style.pointerEvents="none";objectiveText.textContent="Look around the house.";showMessage("Mara is in the house with you.")}
-startButton.addEventListener("click",startGame);\nstartButton.addEventListener("pointerdown",startGame);\nstartScreen.addEventListener("click",e=>{if(e.target===startScreen||e.target.closest("#startButton"))startGame(e)});
+startButton.addEventListener("click",startGame);
+startButton.addEventListener("pointerdown",startGame);
+startScreen.addEventListener("click",e=>{if(e.target===startScreen||e.target.closest("#startButton"))startGame(e)});
 startButton.addEventListener("pointerup",startGame);
 startButton.addEventListener("touchend",startGame,{passive:false});
 startButton.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")startGame(e)});
