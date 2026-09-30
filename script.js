@@ -8,7 +8,7 @@ let started=false,ended=false,hasKey=false,hasNote=false,drawerOpen=false,frontD
 let state="calm",suspicion=0,anger=0,attachment=0,messageTimer=0,lookPointer=null,lastX=0,lastY=0,joyX=0,joyY=0;
 const keys={},conversation=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9b9285);scene.fog=new THREE.Fog(0x9b9285,14,32);
-const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.05,55);camera.position.set(-6.2,1.62,2.35);camera.rotation.order="YXZ";
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.05,55);camera.position.set(-5.0,1.62,2.15);camera.rotation.order="YXZ";
 let yaw=-Math.PI/2,pitch=0;
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.75;
 const colliders=[],objects=[],lights=[];
