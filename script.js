@@ -30,20 +30,20 @@ scene.background=new THREE.Color(0x050607);
 scene.fog=new THREE.Fog(0x050607,8,30);
 
 const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.05,100);
-camera.position.set(0,1.65,7.5);
+camera.position.set(0,1.65,6.5);
 
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
 
-const ambient=new THREE.HemisphereLight(0xc8c8d0,0x303030,2.2);
+const ambient=new THREE.HemisphereLight(0xffffff,0x777777,5.0);
 scene.add(ambient);
-const lamp=new THREE.PointLight(0xffe5c4,5.5,22);
+const lamp=new THREE.PointLight(0xffffff,9,30);
 lamp.position.set(0,3.3,0);
 lamp.castShadow=true;
 scene.add(lamp);
-const fill=new THREE.PointLight(0x9aa8ff,2.5,16); fill.position.set(-5,3,-4); scene.add(fill);
+const fill=new THREE.PointLight(0xaabbff,5,25); fill.position.set(-6,4,-4); scene.add(fill);\nconst maraLight=new THREE.PointLight(0xffffff,7,10); maraLight.position.set(4,3,-2); scene.add(maraLight);
 
 function mat(color,rough=.85){return new THREE.MeshStandardMaterial({color,roughness:rough});}
 const floorMat=mat(0x24272a),wallMat=mat(0x1a1c1f),woodMat=mat(0x33271f),darkMat=mat(0x111315);
@@ -77,9 +77,9 @@ const knob=box("door knob",.65,1.8,7.58,.12,.12,.12,mat(0xb8a36a,.4));
 
 const mara=new THREE.Group();
 mara.position.set(4,0,-2);
-const mBody=new THREE.Mesh(new THREE.CapsuleGeometry(.42,1.05,6,12),mat(0x3b1d27));
+const mBody=new THREE.Mesh(new THREE.CapsuleGeometry(.42,1.05,6,12),new THREE.MeshStandardMaterial({color:0x8f3b55,roughness:.7,emissive:0x16050b,emissiveIntensity:.5}));
 mBody.position.y=1.05;mBody.castShadow=true;mara.add(mBody);
-const mHead=new THREE.Mesh(new THREE.SphereGeometry(.36,16,12),mat(0xd1a997));
+const mHead=new THREE.Mesh(new THREE.SphereGeometry(.36,16,12),new THREE.MeshStandardMaterial({color:0xf0c0aa,roughness:.7,emissive:0x24100b,emissiveIntensity:.2}));
 mHead.position.y=1.95;mHead.castShadow=true;mara.add(mHead);
 const hair=new THREE.Mesh(new THREE.SphereGeometry(.39,16,12,0,Math.PI*2,0,Math.PI*.62),mat(0x151216));
 hair.position.y=2.08;mara.add(hair);
