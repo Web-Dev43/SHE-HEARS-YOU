@@ -1,1 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#08090b">
+  <title>SHE HEARS YOU</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+  <div id="game">
+
+    <div id="hud">
+      <div class="title">SHE HEARS YOU</div>
+
+      <div class="objective">
+        <span>OBJECTIVE</span>
+        <strong id="objectiveText">Find the key.</strong>
+      </div>
+    </div>
+
+
+    <div id="house">
+
+      <div class="wall wall-top"></div>
+      <div class="wall wall-left"></div>
+      <div class="wall wall-right"></div>
+      <div class="wall wall-bottom"></div>
+
+      <div class="room-label bedroom-label">BEDROOM</div>
+      <div class="room-label living-label">LIVING ROOM</div>
+      <div class="room-label kitchen-label">KITCHEN</div>
+
+
+      <div class="furniture bed">
+        <div class="pillow"></div>
+        <div class="blanket"></div>
+      </div>
+
+      <div class="furniture couch">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+
+      <div class="furniture table">
+        <div class="table-top"></div>
+        <div class="table-leg one"></div>
+        <div class="table-leg two"></div>
+        <div class="table-leg three"></div>
+        <div class="table-leg four"></div>
+      </div>
+
+
+      <div id="key" class="item">
+        🔑
+        <span>KEY</span>
+      </div>
+
+
+      <div id="exitDoor">
+        <div class="door-symbol">🚪</div>
+        <span>EXIT</span>
+      </div>
+
+
+      <div id="girl">
+        <div class="character-shadow"></div>
+        <div class="character">
+          <div class="hair"></div>
+          <div class="face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+          </div>
+          <div class="body"></div>
+        </div>
+        <div class="character-name">SHE</div>
+      </div>
+
+
+      <div id="player">
+        <div class="player-body"></div>
+        <div class="player-name">YOU</div>
+      </div>
+
+    </div>
+
+
+    <div id="message">
+      <span id="messageText">Find the key. Then get out.</span>
+    </div>
+
+
+    <div id="chat">
+
+      <div class="chat-header">
+        <span>SHE</span>
+        <button id="closeChat">×</button>
+      </div>
+
+      <div id="chatMessages">
+        <div class="chat-message she-message">
+          <strong>She</strong>
+          <p>You're awake.</p>
+        </div>
+      </div>
+
+      <form id="chatForm">
+        <input
+          id="chatInput"
+          type="text"
+          maxlength="160"
+          autocomplete="off"
+          placeholder="Say something..."
+        >
+        <button type="submit">SEND</button>
+      </form>
+
+    </div>
+
+
+    <button id="chatButton">💬 TALK</button>
+
+
+    <div id="controls">
+
+      <div class="dpad">
+        <button data-key="ArrowUp">▲</button>
+
+        <div>
+          <button data-key="ArrowLeft">◀</button>
+          <button data-key="ArrowDown">▼</button>
+          <button data-key="ArrowRight">▶</button>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div id="startScreen">
+
+      <div class="start-box">
+
+        <div class="glitch-title">
+          SHE HEARS YOU
+        </div>
+
+        <p>
+          You don't remember coming here.
+        </p>
+
+        <p>
+          She says you wanted to stay.
+        </p>
+
+        <button id="startButton">
+          ENTER
+        </button>
+
+        <small>
+          WASD / ARROW KEYS • MOBILE CONTROLS
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <div id="endingScreen">
+
+      <div class="ending-box">
+
+        <div id="endingTitle">
+          YOU ESCAPED
+        </div>
+
+        <p id="endingText">
+          The door opens.
+        </p>
+
+        <button onclick="location.reload()">
+          PLAY AGAIN
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
