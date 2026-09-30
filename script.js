@@ -36,10 +36,16 @@ let girlY = 40;
 const speed = 0.8;
 
 const keys = {};
-
 let conversation = [];
+let messageTimeout;
+
+
+/* =========================
+   KEYBOARD
+========================= */
 
 document.addEventListener("keydown", (event) => {
+
   keys[event.key] = true;
 
   if (
@@ -53,6 +59,11 @@ document.addEventListener("keydown", (event) => {
   ) {
     event.preventDefault();
   }
+
+  if (event.key.toLowerCase() === "e") {
+    interact();
+  }
+
 });
 
 document.addEventListener("keyup", (event) => {
@@ -60,16 +71,30 @@ document.addEventListener("keyup", (event) => {
 });
 
 
+/* =========================
+   START
+========================= */
+
 function startGame() {
+
   gameStarted = true;
+
   startScreen.style.display = "none";
 
   showMessage("She's somewhere in the house.");
-}
 
+  setTimeout(() => {
+    showMessage("Tap MARA to talk.");
+  }, 2500);
+
+}
 
 startButton.addEventListener("click", startGame);
 
+
+/* =========================
+   PLAYER MOVEMENT
+========================= */
 
 function movePlayer() {
 
@@ -108,16 +133,27 @@ function movePlayer() {
   if (moved) {
     checkInteractions();
   }
+
 }
 
 
+/* =========================
+   DISTANCE
+========================= */
+
 function distanceBetween(ax, ay, bx, by) {
+
   const dx = ax - bx;
   const dy = ay - by;
 
   return Math.sqrt(dx * dx + dy * dy);
+
 }
 
+
+/* =========================
+   INTERACTIONS
+========================= */
 
 function checkInteractions() {
 
@@ -143,29 +179,14 @@ function checkInteractions() {
   );
 
 
-  /*
-   * KEY
-   */
+  /* KEY */
 
   if (!hasKey && keyDistance < 7) {
-
-    hasKey = true;
-
-    key.style.display = "none";
-
-    objectiveText.textContent = "Escape through the door.";
-
-    showMessage("You found the key.");
-
-    addSheMessage(
-      "You found that faster than I expected."
-    );
+    collectKey();
   }
 
 
-  /*
-   * EXIT
-   */
+  /* EXIT */
 
   if (exitDistance < 8) {
 
@@ -173,37 +194,31 @@ function checkInteractions() {
 
       exitDoor.classList.add("unlocked");
 
-      showMessage("The door is unlocked. Press E or tap the door.");
+      showMessage("The door is unlocked. Tap it or press E.");
 
     } else {
 
       showMessage("Locked. You need a key.");
 
     }
+
   }
 
 
-  /*
-   * GIRL
-   */
+  /* MARA */
 
   if (girlDistance < 16) {
 
     if (girlDistance < 8) {
-
-      showMessage("She's watching you.");
-
+      showMessage("Mara is watching you.");
     } else {
-
-      showMessage("You can feel her watching.");
+      showMessage("You can feel Mara watching.");
     }
 
   }
 
 
-  /*
-   * SHE MOVES TOWARD PLAYER
-   */
+  /* MARA FOLLOWS */
 
   if (girlDistance < 28) {
 
@@ -219,13 +234,13 @@ function checkInteractions() {
 
       girl.style.left = girlX + "%";
       girl.style.top = girlY + "%";
+
     }
+
   }
 
 
-  /*
-   * SHE GETS VERY CLOSE
-   */
+  /* CLOSE */
 
   if (girlDistance < 7) {
 
@@ -236,19 +251,102 @@ function checkInteractions() {
     }, 250);
 
   }
+
 }
 
 
-document.addEventListener("keydown", (event) => {
+/* =========================
+   KEY COLLECTION
+========================= */
 
-  if (event.key.toLowerCase() === "e") {
-    interact();
+function collectKey() {
+
+  if (hasKey || !gameStarted || gameEnded) {
+    return;
   }
 
+  hasKey = true;
+
+  key.style.display = "none";
+
+  objectiveText.textContent = "Escape through the door.";
+
+  showMessage("You found the key.");
+
+  addMaraMessage(
+    "You found that faster than I expected."
+  );
+
+}
+
+
+/* Tap key */
+
+key.addEventListener("click", collectKey);
+
+
+/* =========================
+   MARA INTERACTION
+========================= */
+
+function talkToMara() {
+
+  if (!gameStarted || gameEnded) {
+    return;
+  }
+
+  openChat();
+
+  const distance = distanceBetween(
+    playerX,
+    playerY,
+    girlX,
+    girlY
+  );
+
+  if (distance < 16) {
+
+    addMaraMessage(
+      randomResponse([
+        "You came closer.",
+        "I knew you'd talk to me eventually.",
+        "You're looking at me again.",
+        "What do you want to ask me?"
+      ])
+    );
+
+  }
+
+}
+
+girl.addEventListener("click", talkToMara);
+
+
+/* =========================
+   EXIT
+========================= */
+
+exitDoor.addEventListener("click", () => {
+
+  if (!gameStarted || gameEnded) {
+    return;
+  }
+
+  if (!hasKey) {
+
+    showMessage("The door won't open. You need the key.");
+
+    addMaraMessage(
+      "Why are you looking at the door?"
+    );
+
+    return;
+
+  }
+
+  escape();
+
 });
-
-
-exitDoor.addEventListener("click", interact);
 
 
 function interact() {
@@ -265,23 +363,33 @@ function interact() {
   );
 
   if (exitDistance > 10) {
+
+    showMessage("You're too far from the door.");
+
     return;
+
   }
 
   if (!hasKey) {
 
     showMessage("The door won't open. You need the key.");
 
-    addSheMessage(
-      "Why are you looking at the door?"
+    addMaraMessage(
+      "You don't have the key."
     );
 
     return;
+
   }
 
   escape();
+
 }
 
+
+/* =========================
+   ESCAPE
+========================= */
 
 function escape() {
 
@@ -290,17 +398,16 @@ function escape() {
   endingTitle.textContent = "YOU ESCAPED";
 
   endingText.textContent =
-    "The door opens. Cold air rushes inside. Behind you, she doesn't move.";
+    "The door opens. Cold air rushes inside. Behind you, Mara doesn't move.";
 
   endingScreen.style.display = "flex";
+
 }
 
 
-/*
- * MESSAGE SYSTEM
- */
-
-let messageTimeout;
+/* =========================
+   MESSAGE SYSTEM
+========================= */
 
 function showMessage(text) {
 
@@ -316,23 +423,25 @@ function showMessage(text) {
         : "Find the key.";
 
   }, 3000);
+
 }
 
 
-/*
- * CHAT
- */
+/* =========================
+   CHAT
+========================= */
 
-chatButton.addEventListener("click", () => {
+function openChat() {
 
-  chat.classList.toggle("open");
+  chat.classList.add("open");
 
-  if (chat.classList.contains("open")) {
+  setTimeout(() => {
     chatInput.focus();
-  }
+  }, 50);
 
-});
+}
 
+chatButton.addEventListener("click", openChat);
 
 closeChat.addEventListener("click", () => {
 
@@ -344,6 +453,10 @@ closeChat.addEventListener("click", () => {
 chatForm.addEventListener("submit", (event) => {
 
   event.preventDefault();
+
+  if (!gameStarted || gameEnded) {
+    return;
+  }
 
   const text = chatInput.value.trim();
 
@@ -362,12 +475,12 @@ chatForm.addEventListener("submit", (event) => {
 
   setTimeout(() => {
 
-    const response = getSheResponse(text);
+    const response = getMaraResponse(text);
 
-    addSheMessage(response);
+    addMaraMessage(response);
 
     conversation.push({
-      role: "she",
+      role: "mara",
       text: response
     });
 
@@ -380,8 +493,7 @@ function addPlayerMessage(text) {
 
   const wrapper = document.createElement("div");
 
-  wrapper.className =
-    "chat-message you-message";
+  wrapper.className = "chat-message you-message";
 
   wrapper.innerHTML = `
     <strong>YOU</strong>
@@ -391,24 +503,25 @@ function addPlayerMessage(text) {
   chatMessages.appendChild(wrapper);
 
   scrollChat();
+
 }
 
 
-function addSheMessage(text) {
+function addMaraMessage(text) {
 
   const wrapper = document.createElement("div");
 
-  wrapper.className =
-    "chat-message she-message";
+  wrapper.className = "chat-message she-message";
 
   wrapper.innerHTML = `
-    <strong>SHE</strong>
+    <strong>MARA</strong>
     <p>${escapeHTML(text)}</p>
   `;
 
   chatMessages.appendChild(wrapper);
 
   scrollChat();
+
 }
 
 
@@ -427,18 +540,15 @@ function escapeHTML(text) {
   div.textContent = text;
 
   return div.innerHTML;
+
 }
 
 
-/*
- * PROTOTYPE AI
- *
- * This is intentionally local for V0.1.
- * Later we'll replace this function with
- * an actual AI backend.
- */
+/* =========================
+   MARA DIALOGUE
+========================= */
 
-function getSheResponse(rawText) {
+function getMaraResponse(rawText) {
 
   const text = rawText.toLowerCase();
 
@@ -486,15 +596,12 @@ function getSheResponse(rawText) {
 
   if (
     text.includes("who are you") ||
-    text.includes("your name")
+    text.includes("your name") ||
+    text.includes("what is your name")
   ) {
 
-    return randomResponse([
-      "You already know me.",
-      "I'm the person keeping you company.",
-      "You can call me whatever you want.",
-      "I'm the one who's been waiting for you."
-    ]);
+    return "My name is Mara.";
+
 
   }
 
@@ -527,9 +634,7 @@ function getSheResponse(rawText) {
   }
 
 
-  if (
-    text.includes("key")
-  ) {
+  if (text.includes("key")) {
 
     return randomResponse([
       "Why are you asking about the key?",
@@ -550,7 +655,7 @@ function getSheResponse(rawText) {
     return randomResponse([
       "You don't have to be scared.",
       "I'm not going to hurt you.",
-      "You're safer with me.",
+      "You're safer here.",
       "I can tell you're nervous."
     ]);
 
@@ -572,9 +677,7 @@ function getSheResponse(rawText) {
   }
 
 
-  if (
-    text.includes("hate")
-  ) {
+  if (text.includes("hate")) {
 
     return randomResponse([
       "You don't mean that.",
@@ -601,15 +704,13 @@ function getSheResponse(rawText) {
   }
 
 
-  if (
-    text.includes("help")
-  ) {
+  if (text.includes("help")) {
 
     return randomResponse([
       "I am helping you.",
-      "You don't need anyone else.",
       "Tell me what you need.",
-      "Why do you think you need help?"
+      "Why do you think you need help?",
+      "You can talk to me."
     ]);
 
   }
@@ -633,8 +734,9 @@ function getSheResponse(rawText) {
     "Interesting.",
     "Tell me more.",
     "You really think I don't notice everything?",
-    "I like hearing your voice."
+    "I was listening."
   ]);
+
 }
 
 
@@ -647,16 +749,15 @@ function randomResponse(list) {
 }
 
 
-/*
- * MOBILE CONTROLS
- */
+/* =========================
+   MOBILE CONTROLS
+========================= */
 
 document
   .querySelectorAll("[data-key]")
   .forEach(button => {
 
-    const keyName =
-      button.dataset.key;
+    const keyName = button.dataset.key;
 
     const press = (event) => {
 
@@ -674,26 +775,39 @@ document
 
     };
 
-    button.addEventListener("touchstart", press, {
-      passive: false
-    });
+    button.addEventListener(
+      "touchstart",
+      press,
+      { passive: false }
+    );
 
-    button.addEventListener("touchend", release, {
-      passive: false
-    });
+    button.addEventListener(
+      "touchend",
+      release,
+      { passive: false }
+    );
 
-    button.addEventListener("mousedown", press);
+    button.addEventListener(
+      "mousedown",
+      press
+    );
 
-    button.addEventListener("mouseup", release);
+    button.addEventListener(
+      "mouseup",
+      release
+    );
 
-    button.addEventListener("mouseleave", release);
+    button.addEventListener(
+      "mouseleave",
+      release
+    );
 
   });
 
 
-/*
- * GAME LOOP
- */
+/* =========================
+   GAME LOOP
+========================= */
 
 function gameLoop() {
 
