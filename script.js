@@ -29,8 +29,11 @@ const decor=[
 ];
 function resize(){canvas.width=Math.floor(innerWidth*devicePixelRatio);canvas.height=Math.floor(innerHeight*devicePixelRatio);canvas.style.width=innerWidth+"px";canvas.style.height=innerHeight+"px";ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
 addEventListener("resize",resize);resize();
-function startGame(){started=true;startScreen.style.display="none";objectiveText.textContent="Look around the house.";showMessage("Mara is in the house with you.")}
+function startGame(e){if(e)e.preventDefault();if(started)return;started=true;startScreen.style.display="none";objectiveText.textContent="Look around the house.";showMessage("Mara is in the house with you.")}
 startButton.addEventListener("click",startGame);
+startButton.addEventListener("pointerup",startGame);
+startButton.addEventListener("touchend",startGame,{passive:false});
+startButton.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")startGame(e)});
 addEventListener("keydown",e=>{if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;held[e.key.toLowerCase()]=true;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==="e")interact()});
 addEventListener("keyup",e=>held[e.key.toLowerCase()]=false);
 function wall(x,y){const gx=Math.floor(x+10),gy=Math.floor(y+9);return gy<0||gy>=map.length||gx<0||gx>=map[0].length||map[gy][gx]==="#"}
