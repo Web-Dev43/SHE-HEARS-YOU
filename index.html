@@ -6,9 +6,9 @@
 <meta name="theme-color" content="#070708">
 <title>SHE HEARS YOU</title>
 <link rel="stylesheet" href="style.css">
-</head>
+<style>#diagnostic{position:fixed;z-index:9999;left:10px;bottom:10px;max-width:calc(100vw - 20px);padding:8px 10px;background:#111;color:#fff;font:12px monospace;border:1px solid #555;border-radius:5px;display:none;white-space:pre-wrap}</style></head>
 <body>
-<div id="game">
+<div id="game"><div id="diagnostic">LOADING GAME...</div>
 <canvas id="world"></canvas>
 <div id="vignette"></div>
 <div id="crosshair">+</div>
@@ -36,7 +36,7 @@
 </div></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
-<script src="script.js?v=23"></script>
+<script src="script.js?v=24" onerror="const d=document.getElementById('diagnostic');d.style.display='block';d.textContent='SCRIPT FAILED TO LOAD\nCheck GitHub Pages / script.js';"></script>
 <script>document.addEventListener("DOMContentLoaded",function(){const b=document.getElementById("startButton");const s=document.getElementById("startScreen");function go(e){e.preventDefault();s.style.display="none";window.dispatchEvent(new Event("she-start"));}b.addEventListener("touchend",go,{passive:false});b.addEventListener("click",go);});</script>
 </body>
 </html>
