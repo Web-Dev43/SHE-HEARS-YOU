@@ -9,56 +9,22 @@
 </head>
 <body>
 <div id="game">
-  <canvas id="world"></canvas>
-
-  <div id="crosshair">+</div>
-
-  <div id="hud">
-    <div class="title">SHE HEARS YOU</div>
-    <div class="objective"><span>OBJECTIVE</span><strong id="objectiveText">Find the key.</strong></div>
-  </div>
-
-  <div id="message"><span id="messageText">Find the key. Then get out.</span></div>
-
-  <div id="interactHint"></div>
-
-  <div id="controls">
-    <div id="joystick"><div id="stick"></div></div>
-    <div id="lookHint">DRAG TO LOOK</div>
-  </div>
-
-  <button id="chatButton">💬</button>
-  <button id="actionButton">INTERACT</button>
-
-  <div id="chat">
-    <div class="chat-header"><span>MARA</span><button id="closeChat">×</button></div>
-    <div id="chatMessages">
-      <div class="chat-message she-message"><strong>MARA</strong><p>You're awake.</p></div>
-    </div>
-    <form id="chatForm">
-      <input id="chatInput" type="text" maxlength="160" autocomplete="off" placeholder="Say something...">
-      <button type="submit">SEND</button>
-    </form>
-  </div>
-
-  <div id="startScreen">
-    <div class="start-box">
-      <div class="glitch-title">SHE HEARS YOU</div>
-      <p>You don't remember coming here.</p>
-      <p>She says you wanted to stay.</p>
-      <button id="startButton">ENTER</button>
-      <small>WASD TO MOVE • MOUSE TO LOOK • MOBILE: JOYSTICK + DRAG</small>
-    </div>
-  </div>
-
-  <div id="endingScreen">
-    <div class="ending-box">
-      <div id="endingTitle">YOU ESCAPED</div>
-      <p id="endingText">The door opens.</p>
-      <button onclick="location.reload()">PLAY AGAIN</button>
-    </div>
-  </div>
+<canvas id="world"></canvas>
+<div id="crosshair">+</div>
+<div id="hud"><div class="title">SHE HEARS YOU</div><div class="objective"><span>OBJECTIVE</span><strong id="objectiveText">Look around.</strong></div></div>
+<div id="message"><span id="messageText">She's somewhere in the house.</span></div>
+<div id="interactHint"></div>
+<div id="danger" aria-hidden="true">SHE IS LISTENING</div>
+<div id="controls"><div id="joystick"><div id="stick"></div></div><div id="lookHint">DRAG TO LOOK</div></div>
+<button id="chatButton">💬</button><button id="actionButton">INTERACT</button>
+<div id="chat">
+<div class="chat-header"><span>MARA</span><button id="closeChat">×</button></div>
+<div id="chatMessages"><div class="chat-message she-message"><strong>MARA</strong><p>You're awake.</p></div></div>
+<form id="chatForm"><input id="chatInput" type="text" maxlength="160" autocomplete="off" placeholder="Say something..."><button type="submit">SEND</button></form>
 </div>
-<script src="script.js?v=10"></script>
+<div id="startScreen"><div class="start-box"><div class="glitch-title">SHE HEARS YOU</div><p>You don't remember coming here.</p><p>Mara says the world outside is ending.</p><button id="startButton">ENTER</button><small>WASD TO MOVE • MOUSE TO LOOK • MOBILE: JOYSTICK + DRAG</small></div></div>
+<div id="endingScreen"><div class="ending-box"><div id="endingTitle">YOU ESCAPED</div><p id="endingText">The door opens.</p><button onclick="location.reload()">PLAY AGAIN</button></div></div>
+</div>
+<script src="script.js?v=11"></script>
 </body>
 </html>
