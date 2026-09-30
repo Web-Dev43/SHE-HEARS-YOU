@@ -21,6 +21,7 @@ input {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 #game {
@@ -31,9 +32,6 @@ button {
   background:
     radial-gradient(circle at center, #17191d 0%, #08090b 70%);
 }
-
-
-/* HUD */
 
 #hud {
   position: absolute;
@@ -77,9 +75,6 @@ button {
   font-size: 13px;
 }
 
-
-/* HOUSE */
-
 #house {
   position: absolute;
   width: min(900px, 90vw);
@@ -88,7 +83,8 @@ button {
   top: 50%;
   transform: translate(-50%, -50%);
   background:
-    linear-gradient(90deg,
+    linear-gradient(
+      90deg,
       rgba(255,255,255,.025) 1px,
       transparent 1px
     ),
@@ -110,27 +106,31 @@ button {
   z-index: 4;
 }
 
-.wall-top {
+.wall-top,
+.wall-bottom {
   width: 100%;
   height: 12px;
+}
+
+.wall-top {
   top: 0;
 }
 
 .wall-bottom {
-  width: 100%;
-  height: 12px;
   bottom: 0;
 }
 
-.wall-left {
+.wall-left,
+.wall-right {
   width: 12px;
   height: 100%;
+}
+
+.wall-left {
   left: 0;
 }
 
 .wall-right {
-  width: 12px;
-  height: 100%;
   right: 0;
 }
 
@@ -158,9 +158,6 @@ button {
   bottom: 30px;
   left: 40px;
 }
-
-
-/* FURNITURE */
 
 .furniture {
   position: absolute;
@@ -258,9 +255,6 @@ button {
   right: 55px;
 }
 
-
-/* KEY */
-
 #key {
   position: absolute;
   z-index: 8;
@@ -269,6 +263,8 @@ button {
   font-size: 25px;
   animation: keyPulse 1.8s infinite;
   cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
 }
 
 #key span {
@@ -285,9 +281,6 @@ button {
   }
 }
 
-
-/* EXIT */
-
 #exitDoor {
   position: absolute;
   z-index: 6;
@@ -303,6 +296,9 @@ button {
   justify-content: center;
   align-items: center;
   transition: .2s;
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
 }
 
 #exitDoor span {
@@ -321,9 +317,6 @@ button {
   box-shadow: 0 0 25px rgba(169,255,112,.25);
 }
 
-
-/* CHARACTERS */
-
 #player,
 #girl {
   position: absolute;
@@ -331,12 +324,20 @@ button {
   width: 42px;
   height: 62px;
   transform: translate(-50%, -50%);
-  pointer-events: none;
 }
 
 #player {
   left: 50%;
   top: 72%;
+  pointer-events: none;
+}
+
+#girl {
+  left: 76%;
+  top: 40%;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
 }
 
 .player-body {
@@ -358,11 +359,6 @@ button {
   top: -14px;
   border-radius: 50%;
   background: #d2b09b;
-}
-
-#girl {
-  left: 76%;
-  top: 40%;
 }
 
 .character {
@@ -441,9 +437,6 @@ button {
   color: #777;
 }
 
-
-/* MESSAGE */
-
 #message {
   position: absolute;
   z-index: 30;
@@ -460,9 +453,6 @@ button {
   pointer-events: none;
   transition: opacity .3s;
 }
-
-
-/* CHAT */
 
 #chat {
   position: absolute;
@@ -579,9 +569,6 @@ button {
   font-weight: 800;
 }
 
-
-/* TALK BUTTON */
-
 #chatButton {
   position: absolute;
   z-index: 40;
@@ -595,9 +582,6 @@ button {
   font-size: 11px;
   font-weight: 800;
 }
-
-
-/* MOBILE CONTROLS */
 
 #controls {
   position: absolute;
@@ -629,9 +613,6 @@ button {
 .dpad > div {
   display: flex;
 }
-
-
-/* START SCREEN */
 
 #startScreen,
 #endingScreen {
@@ -693,9 +674,6 @@ button {
   display: none;
 }
 
-
-/* EFFECTS */
-
 #game.scared {
   animation: shake .25s;
 }
@@ -717,9 +695,6 @@ button {
     transform: translate(-3px, -1px);
   }
 }
-
-
-/* MOBILE */
 
 @media (max-width: 600px) {
 
