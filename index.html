@@ -28,14 +28,14 @@
   <div class="glitch-title">SHE HEARS YOU</div>
   <p>You wake up in a house you don't remember entering.</p>
   <p>Mara is here. She says you're safe.</p>
-  <button id="startButton" type="button" >ENTER</button>
+  <button id="startButton" type="button">ENTER</button>
   <small>DESKTOP: WASD + MOUSE + E &nbsp; • &nbsp; MOBILE: JOYSTICK + DRAG + INTERACT</small>
 </div></div>
 <div id="endingScreen"><div class="ending-box">
   <div id="endingTitle">THE DOOR</div><p id="endingText"></p><button id="againButton">PLAY AGAIN</button>
 </div></div>
 </div>
-<script type="module" src="script.js?v=21"></script>
+<script type="module" src="script.js?v=22"></script>
 <script>document.addEventListener("DOMContentLoaded",function(){const b=document.getElementById("startButton");const s=document.getElementById("startScreen");function go(e){e.preventDefault();s.style.display="none";window.dispatchEvent(new Event("she-start"));}b.addEventListener("touchend",go,{passive:false});b.addEventListener("click",go);});</script>
 </body>
 </html>
