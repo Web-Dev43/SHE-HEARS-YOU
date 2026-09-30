@@ -1,837 +1,260 @@
-const player = document.getElementById("player");
-const girl = document.getElementById("girl");
-const key = document.getElementById("key");
-const exitDoor = document.getElementById("exitDoor");
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
-const objectiveText = document.getElementById("objectiveText");
-const messageText = document.getElementById("messageText");
+const canvas=document.getElementById("world");
+const game=document.getElementById("game");
+const objectiveText=document.getElementById("objectiveText");
+const messageText=document.getElementById("messageText");
+const interactHint=document.getElementById("interactHint");
+const startScreen=document.getElementById("startScreen");
+const startButton=document.getElementById("startButton");
+const endingScreen=document.getElementById("endingScreen");
+const endingTitle=document.getElementById("endingTitle");
+const endingText=document.getElementById("endingText");
+const chat=document.getElementById("chat");
+const chatButton=document.getElementById("chatButton");
+const closeChat=document.getElementById("closeChat");
+const chatForm=document.getElementById("chatForm");
+const chatInput=document.getElementById("chatInput");
+const chatMessages=document.getElementById("chatMessages");
+const joystick=document.getElementById("joystick");
+const stick=document.getElementById("stick");
 
-const startScreen = document.getElementById("startScreen");
-const startButton = document.getElementById("startButton");
-
-const endingScreen = document.getElementById("endingScreen");
-const endingTitle = document.getElementById("endingTitle");
-const endingText = document.getElementById("endingText");
-
-const chat = document.getElementById("chat");
-const chatButton = document.getElementById("chatButton");
-const closeChat = document.getElementById("closeChat");
-
-const chatForm = document.getElementById("chatForm");
-const chatInput = document.getElementById("chatInput");
-const chatMessages = document.getElementById("chatMessages");
-
-const game = document.getElementById("game");
-
-let gameStarted = false;
-let hasKey = false;
-let gameEnded = false;
-
-let playerX = 50;
-let playerY = 72;
-
-let girlX = 76;
-let girlY = 40;
-
-const speed = 0.8;
-// Build 0.1.1
-
-const keys = {};
-let conversation = [];
+let gameStarted=false,hasKey=false,gameEnded=false;
 let messageTimeout;
+let conversation=[];
+const keys={};
+const clock=new THREE.Clock();
 
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x050607);
+scene.fog=new THREE.Fog(0x050607,8,30);
 
-/* =========================
-   KEYBOARD
-========================= */
+const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.05,100);
+camera.position.set(0,1.65,7.5);
 
-document.addEventListener("keydown", (event) => {
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;
 
-  // Never hijack typing inside the chat box.
-  const typing =
-    event.target === chatInput ||
-    event.target.tagName === "INPUT" ||
-    event.target.tagName === "TEXTAREA";
+const ambient=new THREE.HemisphereLight(0x8b8b95,0x101010,1.15);
+scene.add(ambient);
+const lamp=new THREE.PointLight(0xffe5c4,2.2,15);
+lamp.position.set(0,3.3,0);
+lamp.castShadow=true;
+scene.add(lamp);
 
-  if (typing) {
-    return;
-  }
+function mat(color,rough=.85){return new THREE.MeshStandardMaterial({color,roughness:rough});}
+const floorMat=mat(0x24272a),wallMat=mat(0x1a1c1f),woodMat=mat(0x33271f),darkMat=mat(0x111315);
 
-  const keyName = event.key.length === 1
-    ? event.key.toLowerCase()
-    : event.key;
+function box(name,x,y,z,w,h,d,material,rot=0){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+  m.name=name;m.position.set(x,y,z);m.rotation.y=rot;m.castShadow=true;m.receiveShadow=true;scene.add(m);return m;
+}
 
-  keys[keyName] = true;
+box("floor",0,-.05,0,20,.1,18,floorMat);
+box("back wall",0,2,-8,20,4,.3,wallMat);
+box("left wall",-10,2,0,.3,4,16,wallMat);
+box("right wall",10,2,0,.3,4,16,wallMat);
+box("front wall left",-6,2,8,.3,4,2.8,wallMat);
+box("front wall right",6,2,8,.3,4,2.8,wallMat);
+box("front top",-0,3.5,8,8,1,.3,wallMat);
 
-  if (
-    [
-      "ArrowUp",
-      "ArrowDown",
-      "ArrowLeft",
-      "ArrowRight",
-      " "
-    ].includes(event.key)
-  ) {
-    event.preventDefault();
-  }
+box("bed", -6, .65,-5, 4,1.3,2.2, woodMat);
+box("pillow",-7.2,1.35,-5,.9,.25,1.5,mat(0x55575a));
+box("couch",5,.7,-4,3.8,1.4,1.7,mat(0x343238));
+box("table",-4,.9,3,2.5,.18,1.5,woodMat);
+for(const [x,z] of [[-4.9,2.45],[-3.1,2.45],[-4.9,3.55],[-3.1,3.55]]) box("table leg",x,.45,z,.15,.9,.15,woodMat);
 
-  if (event.key.toLowerCase() === "e") {
-    interact();
-  }
+const key=box("KEY",0,.55,2,.35,.18,.75,mat(0xf0c84b, .45));
+key.rotation.y=.35;
+const keyRing=new THREE.Mesh(new THREE.TorusGeometry(.18,.045,10,24),mat(0xf0c84b,.35));
+keyRing.rotation.x=Math.PI/2;keyRing.position.set(.18,.68,2);scene.add(keyRing);
 
-});
+const door=box("EXIT DOOR",0,2,7.82,2.2,4,.3,mat(0x151719));
+const knob=box("door knob",.65,1.8,7.58,.12,.12,.12,mat(0xb8a36a,.4));
 
-document.addEventListener("keyup", (event) => {
-  keys[event.key] = false;
-});
+const mara=new THREE.Group();
+mara.position.set(4,0,-2);
+const mBody=new THREE.Mesh(new THREE.CapsuleGeometry(.42,1.05,6,12),mat(0x3b1d27));
+mBody.position.y=1.05;mBody.castShadow=true;mara.add(mBody);
+const mHead=new THREE.Mesh(new THREE.SphereGeometry(.36,16,12),mat(0xd1a997));
+mHead.position.y=1.95;mHead.castShadow=true;mara.add(mHead);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.39,16,12,0,Math.PI*2,0,Math.PI*.62),mat(0x151216));
+hair.position.y=2.08;mara.add(hair);
+for(const x of [-.11,.11]){const eye=new THREE.Mesh(new THREE.SphereGeometry(.035,8,8),mat(0x090509));eye.position.set(x,1.98,.335);mara.add(eye)}
+scene.add(mara);
 
+let yaw=0,pitch=0;
+const velocity=new THREE.Vector3();
+const forward=new THREE.Vector3(),right=new THREE.Vector3();
+let joystickX=0,joystickY=0;
+let lookPointer=null,lastLookX=0,lastLookY=0;
 
-/* =========================
-   START
-========================= */
+function setLook(dx,dy){
+  yaw-=dx*.0022;
+  pitch-=dy*.0022;
+  pitch=Math.max(-1.25,Math.min(1.25,pitch));
+}
 
-function startGame() {
-
-  gameStarted = true;
-
-  startScreen.style.display = "none";
-
+function startGame(){
+  gameStarted=true;startScreen.style.display="none";
   showMessage("She's somewhere in the house.");
+  if(innerWidth>600 && document.body.requestPointerLock) canvas.requestPointerLock();
+}
+startButton.addEventListener("click",startGame);
 
-  setTimeout(() => {
-    showMessage("Tap MARA to talk.");
-  }, 2500);
+document.addEventListener("keydown",e=>{
+  if(e.target===chatInput||e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  const k=e.key.length===1?e.key.toLowerCase():e.key;
+  keys[k]=true;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
+  if(e.key.toLowerCase()==="e")interact();
+});
+document.addEventListener("keyup",e=>{keys[e.key]=false});
 
+canvas.addEventListener("click",()=>{
+  if(gameStarted&&innerWidth>600&&!document.pointerLockElement)canvas.requestPointerLock();
+});
+document.addEventListener("mousemove",e=>{
+  if(document.pointerLockElement===canvas)setLook(e.movementX,e.movementY);
+});
+
+function updatePlayer(dt){
+  if(!gameStarted||gameEnded)return;
+  let x=(keys.a||keys.ArrowLeft?-1:0)+(keys.d||keys.ArrowRight?1:0)+joystickX;
+  let z=(keys.w||keys.ArrowUp?-1:0)+(keys.s||keys.ArrowDown?1:0)+joystickY;
+  const len=Math.hypot(x,z);
+  if(len>1){x/=len;z/=len}
+  camera.rotation.order="YXZ";
+  camera.rotation.y=yaw;camera.rotation.x=pitch;
+  forward.set(-Math.sin(yaw),0,-Math.cos(yaw));
+  right.set(Math.cos(yaw),0,-Math.sin(yaw));
+  velocity.set(0,0,0).addScaledVector(forward,z*-1).addScaledVector(right,x);
+  if(velocity.lengthSq()>0)velocity.normalize().multiplyScalar(3.1*dt);
+  camera.position.add(velocity);
+  camera.position.x=Math.max(-8.8,Math.min(8.8,camera.position.x));
+  camera.position.z=Math.max(-6.8,Math.min(7.1,camera.position.z));
+  camera.position.y=1.65;
+  updateMara(dt);
+  checkInteractions();
 }
 
-startButton.addEventListener("click", startGame);
-
-
-/* =========================
-   PLAYER MOVEMENT
-========================= */
-
-function movePlayer() {
-
-  if (!gameStarted || gameEnded) {
-    return;
+function updateMara(dt){
+  const dx=camera.position.x-mara.position.x,dz=camera.position.z-mara.position.z;
+  const dist=Math.hypot(dx,dz);
+  if(dist<7&&dist>1.7){
+    mara.position.x+=(dx/dist)*dt*.38;
+    mara.position.z+=(dz/dist)*dt*.38;
+    mara.lookAt(camera.position.x,mara.position.y,camera.position.z);
   }
-
-  let moved = false;
-
-  if (keys["w"] || keys["W"] || keys["ArrowUp"]) {
-    playerY -= speed;
-    moved = true;
-  }
-
-  if (keys["s"] || keys["S"] || keys["ArrowDown"]) {
-    playerY += speed;
-    moved = true;
-  }
-
-  if (keys["a"] || keys["A"] || keys["ArrowLeft"]) {
-    playerX -= speed;
-    moved = true;
-  }
-
-  if (keys["d"] || keys["D"] || keys["ArrowRight"]) {
-    playerX += speed;
-    moved = true;
-  }
-
-  playerX = Math.max(7, Math.min(93, playerX));
-  playerY = Math.max(10, Math.min(90, playerY));
-
-  player.style.left = playerX + "%";
-  player.style.top = playerY + "%";
-
-  if (moved) {
-    checkInteractions();
-  }
-
+  if(dist<1.7&&Math.random()<dt*.7)showMessage("Mara is standing very close.");
 }
 
-
-/* =========================
-   DISTANCE
-========================= */
-
-function distanceBetween(ax, ay, bx, by) {
-
-  const dx = ax - bx;
-  const dy = ay - by;
-
-  return Math.sqrt(dx * dx + dy * dy);
-
-}
-
-
-/* =========================
-   INTERACTIONS
-========================= */
-
-function checkInteractions() {
-
-  const girlDistance = distanceBetween(
-    playerX,
-    playerY,
-    girlX,
-    girlY
-  );
-
-  const keyDistance = distanceBetween(
-    playerX,
-    playerY,
-    46,
-    70
-  );
-
-  const exitDistance = distanceBetween(
-    playerX,
-    playerY,
-    92,
-    82
-  );
-
-
-  /* KEY */
-
-  if (!hasKey && keyDistance < 7) {
+function checkInteractions(){
+  const p=camera.position;
+  const keyDist=Math.hypot(p.x-key.position.x,p.z-key.position.z);
+  const doorDist=Math.hypot(p.x-door.position.x,p.z-door.position.z);
+  const maraDist=Math.hypot(p.x-mara.position.x,p.z-mara.position.z);
+  if(!hasKey&&keyDist<1.8){
     collectKey();
   }
-
-
-  /* EXIT */
-
-  if (exitDistance < 8) {
-
-    if (hasKey) {
-
-      exitDoor.classList.add("unlocked");
-
-      showMessage("The door is unlocked. Tap it or press E.");
-
-    } else {
-
-      showMessage("Locked. You need a key.");
-
-    }
-
-  }
-
-
-  /* MARA */
-
-  if (girlDistance < 16) {
-
-    if (girlDistance < 8) {
-      showMessage("Mara is watching you.");
-    } else {
-      showMessage("You can feel Mara watching.");
-    }
-
-  }
-
-
-  /* MARA FOLLOWS */
-
-  if (girlDistance < 28) {
-
-    const dx = playerX - girlX;
-    const dy = playerY - girlY;
-
-    const length = Math.sqrt(dx * dx + dy * dy);
-
-    if (length > 0) {
-
-      girlX += (dx / length) * 0.025;
-      girlY += (dy / length) * 0.025;
-
-      girl.style.left = girlX + "%";
-      girl.style.top = girlY + "%";
-
-    }
-
-  }
-
-
-  /* CLOSE */
-
-  if (girlDistance < 7) {
-
-    game.classList.add("scared");
-
-    setTimeout(() => {
-      game.classList.remove("scared");
-    }, 250);
-
-  }
-
+  if(doorDist<2.2){
+    interactHint.textContent=hasKey?"TAP / PRESS E TO ESCAPE":"THE DOOR IS LOCKED";
+    interactHint.style.display="block";
+  }else if(maraDist<2.4){
+    interactHint.textContent="TALK TO MARA";
+    interactHint.style.display="block";
+  }else interactHint.style.display="none";
 }
 
-
-/* =========================
-   KEY COLLECTION
-========================= */
-
-function collectKey() {
-
-  if (hasKey || !gameStarted || gameEnded) {
-    return;
-  }
-
-  hasKey = true;
-
-  key.style.display = "none";
-
-  objectiveText.textContent = "Escape through the door.";
-
+function collectKey(){
+  if(hasKey||!gameStarted||gameEnded)return;
+  hasKey=true;key.visible=false;keyRing.visible=false;
+  objectiveText.textContent="Escape through the door.";
   showMessage("You found the key.");
-
-  addMaraMessage(
-    "You found that faster than I expected."
-  );
-
+  addMaraMessage("You found that faster than I expected.");
 }
 
-
-/* Tap key */
-
-key.addEventListener("click", collectKey);
-key.addEventListener("pointerup", (e) => { e.preventDefault(); collectKey(); });
-
-
-/* =========================
-   MARA INTERACTION
-========================= */
-
-function talkToMara() {
-
-  if (!gameStarted || gameEnded) {
-    return;
-  }
-
-  openChat();
-
-  const distance = distanceBetween(
-    playerX,
-    playerY,
-    girlX,
-    girlY
-  );
-
-  if (distance < 16) {
-
-    addMaraMessage(
-      randomResponse([
-        "You came closer.",
-        "I knew you'd talk to me eventually.",
-        "You're looking at me again.",
-        "What do you want to ask me?"
-      ])
-    );
-
-  }
-
+function interact(){
+  if(!gameStarted||gameEnded)return;
+  const p=camera.position;
+  const doorDist=Math.hypot(p.x-door.position.x,p.z-door.position.z);
+  const maraDist=Math.hypot(p.x-mara.position.x,p.z-mara.position.z);
+  if(doorDist<2.5){if(hasKey)escape();else showMessage("The door won't open. You need the key.");}
+  else if(maraDist<2.8)openChat();
 }
 
-girl.addEventListener("click", talkToMara);
-girl.addEventListener("pointerup", (e) => { e.preventDefault(); talkToMara(); });
+function escape(){
+  gameEnded=true;endingTitle.textContent="YOU ESCAPED";
+  endingText.textContent="The door opens. Cold air rushes inside. Behind you, Mara doesn't move.";
+  endingScreen.style.display="flex";
+}
 
+function showMessage(t){
+  messageText.textContent=t;clearTimeout(messageTimeout);
+  messageTimeout=setTimeout(()=>messageText.textContent=hasKey?"Find the exit.":"Find the key.",3000);
+}
 
-/* =========================
-   EXIT
-========================= */
+function openChat(){chat.classList.add("open");setTimeout(()=>chatInput.focus(),50)}
+chatButton.addEventListener("click",openChat);
+closeChat.addEventListener("click",()=>chat.classList.remove("open"));
+chatForm.addEventListener("submit",e=>{
+  e.preventDefault();if(!gameStarted||gameEnded)return;
+  const text=chatInput.value.trim();if(!text)return;
+  addPlayerMessage(text);conversation.push({role:"player",text});chatInput.value="";
+  setTimeout(()=>{const response=getMaraResponse(text);addMaraMessage(response);conversation.push({role:"mara",text:response})},450);
+});
+function addPlayerMessage(text){addChat("you-message","YOU",text)}
+function addMaraMessage(text){addChat("she-message","MARA",text)}
+function addChat(cls,name,text){
+  const w=document.createElement("div");w.className="chat-message "+cls;
+  const s=document.createElement("strong");s.textContent=name;
+  const p=document.createElement("p");p.textContent=text;
+  w.append(s,p);chatMessages.appendChild(w);chatMessages.scrollTop=chatMessages.scrollHeight;
+}
+function getMaraResponse(raw){
+  const t=raw.toLowerCase();
+  if(t.includes("who are you")||t.includes("your name"))return"My name is Mara.";
+  if(t.includes("hello")||t.includes("hi")||t.includes("hey"))return["Hi.","You're finally talking to me.","Hello. I was wondering when you'd say something."][Math.floor(Math.random()*3)];
+  if(t.includes("where"))return"You're in the house.";
+  if(t.includes("key"))return hasKey?"You found it.":"Why are you asking about the key?";
+  if(t.includes("escape")||t.includes("leave")||t.includes("get out"))return hasKey?"You really want to leave?":"You don't have the key.";
+  if(t.includes("scared")||t.includes("afraid")||t.includes("fear"))return"You don't have to be scared.";
+  if(t.includes("help"))return"Tell me what you need.";
+  if(t.includes("what are you doing"))return"Watching. Listening. Waiting.";
+  return["I heard you.","Keep talking.","I'm listening.","Tell me more."][Math.floor(Math.random()*4)];
+}
 
-exitDoor.addEventListener("click", () => {
+function setJoystick(e){
+  const r=joystick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  let dx=e.clientX-cx,dy=e.clientY-cy;const max=r.width*.34;const d=Math.hypot(dx,dy);
+  if(d>max){dx=dx/d*max;dy=dy/d*max}
+  joystickX=dx/max;joystickY=dy/max;
+  stick.style.left=(50+joystickX*34)+"%";stick.style.top=(50+joystickY*34)+"%";
+}
+function resetJoystick(){joystickX=0;joystickY=0;stick.style.left="50%";stick.style.top="50%"}
+joystick.addEventListener("pointerdown",e=>{joystick.setPointerCapture(e.pointerId);setJoystick(e)});
+joystick.addEventListener("pointermove",e=>{if(e.buttons)setJoystick(e)});
+joystick.addEventListener("pointerup",resetJoystick);joystick.addEventListener("pointercancel",resetJoystick);
 
-  if (!gameStarted || gameEnded) {
-    return;
-  }
+canvas.addEventListener("pointerdown",e=>{
+  if(innerWidth<=600&&gameStarted&&e.pointerId!==1){lookPointer=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;canvas.setPointerCapture(e.pointerId)}
+});
+canvas.addEventListener("pointermove",e=>{
+  if(innerWidth<=600&&e.pointerId===lookPointer){setLook(e.clientX-lastLookX,e.clientY-lastLookY);lastLookX=e.clientX;lastLookY=e.clientY}
+});
+canvas.addEventListener("pointerup",e=>{if(e.pointerId===lookPointer)lookPointer=null});
+canvas.addEventListener("pointercancel",e=>{if(e.pointerId===lookPointer)lookPointer=null});
 
-  if (!hasKey) {
-
-    showMessage("The door won't open. You need the key.");
-
-    addMaraMessage(
-      "Why are you looking at the door?"
-    );
-
-    return;
-
-  }
-
-  escape();
-
+addEventListener("resize",()=>{
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 });
 
-
-function interact() {
-
-  if (!gameStarted || gameEnded) {
-    return;
-  }
-
-  const exitDistance = distanceBetween(
-    playerX,
-    playerY,
-    92,
-    82
-  );
-
-  if (exitDistance > 10) {
-
-    showMessage("You're too far from the door.");
-
-    return;
-
-  }
-
-  if (!hasKey) {
-
-    showMessage("The door won't open. You need the key.");
-
-    addMaraMessage(
-      "You don't have the key."
-    );
-
-    return;
-
-  }
-
-  escape();
-
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.05);
+  updatePlayer(dt);
+  renderer.render(scene,camera);
 }
-
-
-/* =========================
-   ESCAPE
-========================= */
-
-function escape() {
-
-  gameEnded = true;
-
-  endingTitle.textContent = "YOU ESCAPED";
-
-  endingText.textContent =
-    "The door opens. Cold air rushes inside. Behind you, Mara doesn't move.";
-
-  endingScreen.style.display = "flex";
-
-}
-
-
-/* =========================
-   MESSAGE SYSTEM
-========================= */
-
-function showMessage(text) {
-
-  messageText.textContent = text;
-
-  clearTimeout(messageTimeout);
-
-  messageTimeout = setTimeout(() => {
-
-    messageText.textContent =
-      hasKey
-        ? "Find the exit."
-        : "Find the key.";
-
-  }, 3000);
-
-}
-
-
-/* =========================
-   CHAT
-========================= */
-
-function openChat() {
-
-  chat.classList.add("open");
-
-  setTimeout(() => {
-    chatInput.focus();
-  }, 50);
-
-}
-
-chatButton.addEventListener("click", openChat);
-
-closeChat.addEventListener("click", () => {
-
-  chat.classList.remove("open");
-
-});
-
-
-chatForm.addEventListener("submit", (event) => {
-
-  event.preventDefault();
-
-  if (!gameStarted || gameEnded) {
-    return;
-  }
-
-  const text = chatInput.value.trim();
-
-  if (!text) {
-    return;
-  }
-
-  addPlayerMessage(text);
-
-  conversation.push({
-    role: "player",
-    text
-  });
-
-  chatInput.value = "";
-
-  setTimeout(() => {
-
-    const response = getMaraResponse(text);
-
-    addMaraMessage(response);
-
-    conversation.push({
-      role: "mara",
-      text: response
-    });
-
-  }, 500);
-
-});
-
-
-function addPlayerMessage(text) {
-
-  const wrapper = document.createElement("div");
-
-  wrapper.className = "chat-message you-message";
-
-  wrapper.innerHTML = `
-    <strong>YOU</strong>
-    <p>${escapeHTML(text)}</p>
-  `;
-
-  chatMessages.appendChild(wrapper);
-
-  scrollChat();
-
-}
-
-
-function addMaraMessage(text) {
-
-  const wrapper = document.createElement("div");
-
-  wrapper.className = "chat-message she-message";
-
-  wrapper.innerHTML = `
-    <strong>MARA</strong>
-    <p>${escapeHTML(text)}</p>
-  `;
-
-  chatMessages.appendChild(wrapper);
-
-  scrollChat();
-
-}
-
-
-function scrollChat() {
-
-  chatMessages.scrollTop =
-    chatMessages.scrollHeight;
-
-}
-
-
-function escapeHTML(text) {
-
-  const div = document.createElement("div");
-
-  div.textContent = text;
-
-  return div.innerHTML;
-
-}
-
-
-/* =========================
-   MARA DIALOGUE
-========================= */
-
-function getMaraResponse(rawText) {
-
-  const text = rawText.toLowerCase();
-
-  const lastMessages =
-    conversation
-      .slice(-6)
-      .map(item => item.text)
-      .join(" ")
-      .toLowerCase();
-
-
-  if (
-    text.includes("hello") ||
-    text.includes("hi") ||
-    text.includes("hey")
-  ) {
-
-    return randomResponse([
-      "Hi.",
-      "You're finally talking to me.",
-      "Hello. I was wondering when you'd say something.",
-      "Hi. I'm right here."
-    ]);
-
-  }
-
-
-  if (
-    text.includes("where") &&
-    (
-      text.includes("am i") ||
-      text.includes("we")
-    )
-  ) {
-
-    return randomResponse([
-      "You're in the house.",
-      "You know where you are.",
-      "You're safe here.",
-      "You're exactly where I wanted you."
-    ]);
-
-  }
-
-
-  if (
-    text.includes("who are you") ||
-    text.includes("your name") ||
-    text.includes("what is your name")
-  ) {
-
-    return "My name is Mara.";
-
-
-  }
-
-
-  if (
-    text.includes("let me out") ||
-    text.includes("leave") ||
-    text.includes("escape") ||
-    text.includes("get out")
-  ) {
-
-    if (hasKey) {
-
-      return randomResponse([
-        "You found the key already?",
-        "You really want to leave?",
-        "The door isn't going to make things better.",
-        "Why are you so determined to leave?"
-      ]);
-
-    }
-
-    return randomResponse([
-      "There's nowhere to go.",
-      "You don't have the key.",
-      "Why would you want to leave?",
-      "Stay a little longer."
-    ]);
-
-  }
-
-
-  if (text.includes("key")) {
-
-    return randomResponse([
-      "Why are you asking about the key?",
-      "You shouldn't worry about that.",
-      "I wonder where it could be.",
-      "You're getting curious."
-    ]);
-
-  }
-
-
-  if (
-    text.includes("scared") ||
-    text.includes("afraid") ||
-    text.includes("fear")
-  ) {
-
-    return randomResponse([
-      "You don't have to be scared.",
-      "I'm not going to hurt you.",
-      "You're safer here.",
-      "I can tell you're nervous."
-    ]);
-
-  }
-
-
-  if (
-    text.includes("love") ||
-    text.includes("like you")
-  ) {
-
-    return randomResponse([
-      "That's sweet.",
-      "You don't sound very convincing.",
-      "You said that before.",
-      "I like hearing you say things like that."
-    ]);
-
-  }
-
-
-  if (text.includes("hate")) {
-
-    return randomResponse([
-      "You don't mean that.",
-      "That's not very nice.",
-      "You're upset. I understand.",
-      "You can say whatever you want."
-    ]);
-
-  }
-
-
-  if (
-    text.includes("what are you doing") ||
-    text.includes("where are you")
-  ) {
-
-    return randomResponse([
-      "Watching.",
-      "Listening.",
-      "Waiting.",
-      "I'm closer than you think."
-    ]);
-
-  }
-
-
-  if (text.includes("help")) {
-
-    return randomResponse([
-      "I am helping you.",
-      "Tell me what you need.",
-      "Why do you think you need help?",
-      "You can talk to me."
-    ]);
-
-  }
-
-
-  if (
-    lastMessages.includes("key") &&
-    !hasKey
-  ) {
-
-    return "You're still thinking about that key, aren't you?";
-
-  }
-
-
-  return randomResponse([
-    "I heard you.",
-    "Why did you say that?",
-    "Keep talking.",
-    "I'm listening.",
-    "Interesting.",
-    "Tell me more.",
-    "You really think I don't notice everything?",
-    "I was listening."
-  ]);
-
-}
-
-
-function randomResponse(list) {
-
-  return list[
-    Math.floor(Math.random() * list.length)
-  ];
-
-}
-
-
-/* =========================
-   MOBILE CONTROLS
-========================= */
-
-document
-  .querySelectorAll("[data-key]")
-  .forEach(button => {
-
-    const keyName = button.dataset.key;
-
-    const press = (event) => {
-
-      event.preventDefault();
-
-      keys[keyName] = true;
-
-    };
-
-    const release = (event) => {
-
-      event.preventDefault();
-
-      keys[keyName] = false;
-
-    };
-
-    button.addEventListener(
-      "touchstart",
-      press,
-      { passive: false }
-    );
-
-    button.addEventListener(
-      "touchend",
-      release,
-      { passive: false }
-    );
-
-    button.addEventListener(
-      "mousedown",
-      press
-    );
-
-    button.addEventListener(
-      "mouseup",
-      release
-    );
-
-    button.addEventListener(
-      "mouseleave",
-      release
-    );
-
-  });
-
-
-/* =========================
-   GAME LOOP
-========================= */
-
-function gameLoop() {
-
-  movePlayer();
-
-  requestAnimationFrame(gameLoop);
-
-}
-
-gameLoop();
+animate();
