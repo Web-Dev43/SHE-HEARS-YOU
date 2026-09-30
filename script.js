@@ -1,3 +1,6 @@
+const diagnostic=document.getElementById("diagnostic");
+function diag(t){if(diagnostic){diagnostic.style.display="block";diagnostic.textContent=t;}}
+try{
 const $=id=>document.getElementById(id);
 const canvas=$("world"),startScreen=$("startScreen"),startButton=$("startButton"),objective=$("objectiveText"),message=$("messageText"),hint=$("interactHint"),danger=$("danger"),chat=$("chat"),chatButton=$("chatButton"),closeChat=$("closeChat"),chatForm=$("chatForm"),chatInput=$("chatInput"),chatMessages=$("chatMessages"),action=$("actionButton"),joystick=$("joystick"),stick=$("stick");
 
@@ -152,3 +155,6 @@ function update(dt){if(!started||ended)return;let f=(keys.w?1:0)-(keys.s?1:0)-jo
 function render(t){camera.rotation.y=yaw;camera.rotation.x=pitch;renderer.render(scene,camera);animateMara(t)}
 const clock=new THREE.Clock();function loop(t){const dt=Math.min(.05,clock.getDelta());update(dt);render(t);requestAnimationFrame(loop)}requestAnimationFrame(loop);
 addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+
+if(diagnostic)diagnostic.style.display="none";
+}catch(error){diag("GAME ERROR:\n"+error.message);throw error;}
