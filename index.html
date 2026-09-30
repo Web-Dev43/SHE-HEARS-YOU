@@ -58,7 +58,35 @@
     </div>
   </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r180/three.min.js"></script>
-<script src="script.js?v=7"></script>
+<script>
+(function(){
+  function loadGame(){
+    const s=document.createElement("script");
+    s.src="script.js?v=8";
+    s.onerror=function(){
+      document.getElementById("startButton").disabled=false;
+      document.getElementById("startButton").textContent="LOAD ERROR";
+      document.querySelector(".start-box small").textContent="Three.js could not be loaded.";
+    };
+    document.body.appendChild(s);
+  }
+  const three=document.createElement("script");
+  three.src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r180/three.min.js";
+  three.onload=loadGame;
+  three.onerror=function(){
+    three.remove();
+    const backup=document.createElement("script");
+    backup.src="https://unpkg.com/three@0.180.0/build/three.min.js";
+    backup.onload=loadGame;
+    backup.onerror=function(){
+      document.getElementById("startButton").disabled=false;
+      document.getElementById("startButton").textContent="LOAD ERROR";
+      document.querySelector(".start-box small").textContent="Three.js could not be loaded.";
+    };
+    document.body.appendChild(backup);
+  };
+  document.body.appendChild(three);
+})();
+</script>
 </body>
 </html>
