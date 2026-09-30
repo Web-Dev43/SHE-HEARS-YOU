@@ -47,7 +47,21 @@ let messageTimeout;
 
 document.addEventListener("keydown", (event) => {
 
-  keys[event.key] = true;
+  // Never hijack typing inside the chat box.
+  const typing =
+    event.target === chatInput ||
+    event.target.tagName === "INPUT" ||
+    event.target.tagName === "TEXTAREA";
+
+  if (typing) {
+    return;
+  }
+
+  const keyName = event.key.length === 1
+    ? event.key.toLowerCase()
+    : event.key;
+
+  keys[keyName] = true;
 
   if (
     [
