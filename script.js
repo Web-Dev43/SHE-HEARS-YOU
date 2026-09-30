@@ -137,9 +137,14 @@ function reply(raw){
 chatButton.addEventListener("click",openChat);closeChat.addEventListener("click",()=>{chat.classList.remove("open");chatButton.style.display=""});action.addEventListener("click",interact);
 chatForm.addEventListener("submit",e=>{e.preventDefault();const t=chatInput.value.trim();if(!started||ended||!t)return;addPlayer(t);chatInput.value="";setTimeout(()=>addMara(reply(t)),350)});
 
+let joyPointer=null;
 function setJoy(e){const r=joystick.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=r.width*.34,d=Math.hypot(dx,dy)||1,k=Math.min(1,m/d);joyX=dx/m*k;joyY=dy/m*k;stick.style.left=(50+joyX*34)+"%";stick.style.top=(50+joyY*34)+"%"}
-function resetJoy(){joyX=joyY=0;stick.style.left="50%";stick.style.top="50%"}
-joystick.addEventListener("pointerdown",e=>{joystick.setPointerCapture(e.pointerId);setJoy(e)});joystick.addEventListener("pointermove",e=>{if(e.buttons)setJoy(e)});joystick.addEventListener("pointerup",resetJoy);joystick.addEventListener("pointercancel",resetJoy);
+function resetJoy(){joyPointer=null;joyX=joyY=0;stick.style.left="50%";stick.style.top="50%"}
+joystick.addEventListener("pointerdown",e=>{e.preventDefault();joyPointer=e.pointerId;joystick.setPointerCapture(e.pointerId);setJoy(e)});
+joystick.addEventListener("pointermove",e=>{if(e.pointerId===joyPointer)setJoy(e)});
+joystick.addEventListener("pointerup",e=>{if(e.pointerId===joyPointer)resetJoy()});
+joystick.addEventListener("pointercancel",e=>{if(e.pointerId===joyPointer)resetJoy()});
+joystick.addEventListener("lostpointercapture",resetJoy);
 canvas.addEventListener("pointerdown",e=>{if(innerWidth<=600&&started&&!chat.classList.contains("open")){lookPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)}});
 canvas.addEventListener("pointermove",e=>{if(e.pointerId===lookPointer){yaw+=(e.clientX-lastX)*.006;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-lastY)*.006,-1.22,1.22);lastX=e.clientX;lastY=e.clientY}});
 canvas.addEventListener("pointerup",e=>{if(e.pointerId===lookPointer)lookPointer=null});canvas.addEventListener("pointercancel",e=>{if(e.pointerId===lookPointer)lookPointer=null});
