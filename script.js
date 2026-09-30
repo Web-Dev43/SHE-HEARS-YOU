@@ -9,7 +9,7 @@ const keys={},conversation=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x08090a);scene.fog=new THREE.Fog(0x08090a,9,28);
 const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.05,55);camera.position.set(-6.2,1.62,5.1);camera.rotation.order="YXZ";
 let yaw=-Math.PI/2,pitch=0;
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.72;
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.95;
 const colliders=[],objects=[],lights=[];
 
 const M={wall:new THREE.MeshStandardMaterial({color:0x45403e,roughness:.92}),floor:new THREE.MeshStandardMaterial({color:0x252322,roughness:.94}),wood:new THREE.MeshStandardMaterial({color:0x4b3327,roughness:.82}),darkWood:new THREE.MeshStandardMaterial({color:0x2b211c,roughness:.9}),fabric:new THREE.MeshStandardMaterial({color:0x3b3c40,roughness:1}),metal:new THREE.MeshStandardMaterial({color:0x62666a,roughness:.65,metalness:.2}),glass:new THREE.MeshStandardMaterial({color:0x29343a,roughness:.18,metalness:.15,transparent:true,opacity:.55}),black:new THREE.MeshStandardMaterial({color:0x101113,roughness:.7}),paper:new THREE.MeshStandardMaterial({color:0xc9c1ae,roughness:1}),skin:new THREE.MeshStandardMaterial({color:0xc88f7d,roughness:.88}),hair:new THREE.MeshStandardMaterial({color:0x141216,roughness:1}),dress:new THREE.MeshStandardMaterial({color:0x542630,roughness:.9}),white:new THREE.MeshStandardMaterial({color:0xd4d0c8,roughness:1})};
@@ -52,9 +52,9 @@ function buildHouse(){
 }
 buildHouse();
 
-const hemi=new THREE.HemisphereLight(0x9ca4af,0x151311,.52);scene.add(hemi);
-const moon=new THREE.DirectionalLight(0xa9bbd7,1.0);moon.position.set(-5,9,4);moon.castShadow=true;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-12;moon.shadow.camera.right=12;moon.shadow.camera.top=12;moon.shadow.camera.bottom=-12;scene.add(moon);
-function ceilingLight(x,z,warm=.9){const p=new THREE.PointLight(0xffd8b0,warm,7,2);p.position.set(x,2.75,z);p.castShadow=true;scene.add(p);lights.push(p);mesh(new THREE.CylinderGeometry(.18,.28,.28,12),M.white,x,2.91,z,false,false)}
+const hemi=new THREE.HemisphereLight(0x9ca4af,0x151311,.85);scene.add(hemi);
+const moon=new THREE.DirectionalLight(0xa9bbd7,1.35);moon.position.set(-5,9,4);moon.castShadow=true;moon.shadow.mapSize.set(1024,1024);moon.shadow.camera.left=-12;moon.shadow.camera.right=12;moon.shadow.camera.top=12;moon.shadow.camera.bottom=-12;scene.add(moon);
+function ceilingLight(x,z,warm=.9){const p=new THREE.PointLight(0xffd8b0,warm*1.25,8,2);p.position.set(x,2.75,z);p.castShadow=true;scene.add(p);lights.push(p);mesh(new THREE.CylinderGeometry(.18,.28,.28,12),M.white,x,2.91,z,false,false)}
 ceilingLight(-6,4.5,.8);ceilingLight(-5,-4.5,.75);ceilingLight(4,4.7,.9);ceilingLight(5,-4.7,.65);ceilingLight(0,0,.45);
 
 const mara=new THREE.Group();mara.position.set(5.1,0,-4.0);scene.add(mara);mara.userData.target={x:5.1,z:-4};
