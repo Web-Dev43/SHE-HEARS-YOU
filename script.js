@@ -137,14 +137,17 @@ function reply(raw){
 chatButton.addEventListener("click",openChat);closeChat.addEventListener("click",()=>{chat.classList.remove("open");chatButton.style.display=""});action.addEventListener("click",interact);
 chatForm.addEventListener("submit",e=>{e.preventDefault();const t=chatInput.value.trim();if(!started||ended||!t)return;addPlayer(t);chatInput.value="";setTimeout(()=>addMara(reply(t)),350)});
 
-let joyPointer=null;
-function setJoy(e){const r=joystick.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=r.width*.34,d=Math.hypot(dx,dy)||1,k=Math.min(1,m/d);joyX=dx/m*k;joyY=dy/m*k;stick.style.left=(50+joyX*34)+"%";stick.style.top=(50+joyY*34)+"%"}
-function resetJoy(){joyPointer=null;joyX=joyY=0;stick.style.left="50%";stick.style.top="50%"}
-joystick.addEventListener("pointerdown",e=>{e.preventDefault();joyPointer=e.pointerId;joystick.setPointerCapture(e.pointerId);setJoy(e)});
-joystick.addEventListener("pointermove",e=>{if(e.pointerId===joyPointer)setJoy(e)});
+let joyPointer=null,joyTouchId=null;
+function applyJoy(clientX,clientY){const r=joystick.getBoundingClientRect(),dx=clientX-(r.left+r.width/2),dy=clientY-(r.top+r.height/2),m=Math.max(1,r.width*.34),d=Math.hypot(dx,dy)||1,k=Math.min(1,m/d);joyX=Math.max(-1,Math.min(1,dx/m*k));joyY=Math.max(-1,Math.min(1,dy/m*k));stick.style.left=(50+joyX*34)+"%";stick.style.top=(50+joyY*34)+"%"}
+function resetJoy(){joyPointer=null;joyTouchId=null;joyX=joyY=0;stick.style.left="50%";stick.style.top="50%"}
+joystick.addEventListener("pointerdown",e=>{e.preventDefault();joyPointer=e.pointerId;applyJoy(e.clientX,e.clientY)});
+joystick.addEventListener("pointermove",e=>{if(e.pointerId===joyPointer)applyJoy(e.clientX,e.clientY)});
 joystick.addEventListener("pointerup",e=>{if(e.pointerId===joyPointer)resetJoy()});
 joystick.addEventListener("pointercancel",e=>{if(e.pointerId===joyPointer)resetJoy()});
-joystick.addEventListener("lostpointercapture",resetJoy);
+joystick.addEventListener("touchstart",e=>{e.preventDefault();const t=e.changedTouches[0];if(!t)return;joyTouchId=t.identifier;applyJoy(t.clientX,t.clientY)},{passive:false});
+joystick.addEventListener("touchmove",e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier===joyTouchId){applyJoy(t.clientX,t.clientY);break}}},{passive:false});
+joystick.addEventListener("touchend",e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier===joyTouchId){resetJoy();break}}},{passive:false});
+joystick.addEventListener("touchcancel",e=>{e.preventDefault();resetJoy()},{passive:false});
 canvas.addEventListener("pointerdown",e=>{if(innerWidth<=600&&started&&!chat.classList.contains("open")){lookPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)}});
 canvas.addEventListener("pointermove",e=>{if(e.pointerId===lookPointer){yaw+=(e.clientX-lastX)*.006;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-lastY)*.006,-1.22,1.22);lastX=e.clientX;lastY=e.clientY}});
 canvas.addEventListener("pointerup",e=>{if(e.pointerId===lookPointer)lookPointer=null});canvas.addEventListener("pointercancel",e=>{if(e.pointerId===lookPointer)lookPointer=null});
