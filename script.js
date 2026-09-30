@@ -90,10 +90,10 @@ function reply(raw){
  const t=raw.toLowerCase().replace(/[?!.,]/g,"").trim();
  if(/(shut up|stupid|idiot|hate you|leave me alone|annoying)/.test(t)){anger+=35;suspicion+=12;if(anger>=70){maraState="angry";return"I gave you everything. And this is how you talk to me?"}return"That hurt. Why are you being like this?"}
  if(/(world|outside|apocalypse|end(ing)?|danger|safe)/.test(t)){suspicion+=5;return"Outside isn't safe. You know what happened. You don't need to see it yourself."}
- if(/(why|what do you mean|explain)/.test(t)&&conversation.length>2)return"You came here because you trusted me. You said you wanted somewhere safe. Why are you acting like I brought you here against your will?"}
- if(/(who are you|your name)/.test(t))return"I'm Mara. Your girlfriend. You used to say my name like it meant home."}
+ if(/(why|what do you mean|explain)/.test(t)&&conversation.length>2)return"You came here because you trusted me. You said you wanted somewhere safe. Why are you acting like I brought you here against your will?"
+ if(/(who are you|your name)/.test(t))return"I'm Mara. Your girlfriend. You used to say my name like it meant home."
  if(/(girlfriend|relationship|love|loved)/.test(t)){attachment+=10;return"You are my girlfriend. I don't understand why you're questioning that now."}
- if(/(where am i|where are we)/.test(t))return"Home. Our house. The world outside is falling apart, but we're safe here."}
+ if(/(where am i|where are we)/.test(t))return"Home. Our house. The world outside is falling apart, but we're safe here."
  if(/(why am i here|why did you bring me|how did i get here)/.test(t)){suspicion+=4;return"You asked me to keep you safe. You were scared. You don't remember everything yet."}
  if(/(key|keys)/.test(t)){suspicion+=10;return hasKey?"You already found it.":"Why are you so interested in the door?"}
  if(/(escape|leave|get out|let me out|go outside)/.test(t)){suspicion+=18;attachment+=4;if(suspicion>=45){maraState="suspicious";return"Why do you keep talking about leaving me? I'm trying to protect you."}return"You can't go outside. Not now."}
