@@ -1,5 +1,3 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-
 const $=id=>document.getElementById(id);
 const canvas=$("world"),startScreen=$("startScreen"),startButton=$("startButton"),objective=$("objectiveText"),message=$("messageText"),hint=$("interactHint"),danger=$("danger"),chat=$("chat"),chatButton=$("chatButton"),closeChat=$("closeChat"),chatForm=$("chatForm"),chatInput=$("chatInput"),chatMessages=$("chatMessages"),action=$("actionButton"),joystick=$("joystick"),stick=$("stick");
 
