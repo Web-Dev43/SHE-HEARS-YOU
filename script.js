@@ -1,5 +1,13 @@
-
-
+// Build 0.1.2
+if(!window.THREE){
+  document.addEventListener("DOMContentLoaded",()=>{
+    const b=document.getElementById("startButton");
+    const small=document.querySelector(".start-box small");
+    if(b){b.disabled=true;b.textContent="LOAD ERROR";}
+    if(small)small.textContent="Three.js could not be loaded.";
+  });
+  throw new Error("Three.js failed to load");
+}
 const canvas=document.getElementById("world");
 const game=document.getElementById("game");
 const objectiveText=document.getElementById("objectiveText");
