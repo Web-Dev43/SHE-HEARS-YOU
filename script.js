@@ -26,8 +26,7 @@ const keys={};
 const clock=new THREE.Clock();
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x050607);
-scene.fog=new THREE.Fog(0x050607,8,30);
+scene.background=new THREE.Color(0x30343a);
 
 const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.05,100);
 camera.position.set(0,1.65,6.5);
@@ -43,7 +42,8 @@ const lamp=new THREE.PointLight(0xffffff,9,30);
 lamp.position.set(0,3.3,0);
 lamp.castShadow=true;
 scene.add(lamp);
-const fill=new THREE.PointLight(0xaabbff,5,25); fill.position.set(-6,4,-4); scene.add(fill);\nconst maraLight=new THREE.PointLight(0xffffff,7,10); maraLight.position.set(4,3,-2); scene.add(maraLight);
+const fill=new THREE.PointLight(0xaabbff,5,25); fill.position.set(-6,4,-4); scene.add(fill);
+const maraLight=new THREE.PointLight(0xffffff,7,10); maraLight.position.set(4,3,-2); scene.add(maraLight);
 
 function mat(color,rough=.85){return new THREE.MeshStandardMaterial({color,roughness:rough});}
 const floorMat=mat(0x24272a),wallMat=mat(0x1a1c1f),woodMat=mat(0x33271f),darkMat=mat(0x111315);
