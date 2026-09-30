@@ -3,28 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#050607">
+<meta name="theme-color" content="#070708">
 <title>SHE HEARS YOU</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="game">
 <canvas id="world"></canvas>
+<div id="vignette"></div>
 <div id="crosshair">+</div>
-<div id="hud"><div class="title">SHE HEARS YOU</div><div class="objective"><span>OBJECTIVE</span><strong id="objectiveText">Look around.</strong></div></div>
-<div id="message"><span id="messageText">She's somewhere in the house.</span></div>
+<div id="hud"><div class="brand">SHE HEARS YOU</div><div class="objective"><span>OBJECTIVE</span><strong id="objectiveText">Explore the house.</strong></div></div>
+<div id="message"><span id="messageText">Mara is somewhere in the house.</span></div>
 <div id="interactHint"></div>
-<div id="danger" aria-hidden="true">SHE IS LISTENING</div>
+<div id="danger">SHE IS LISTENING</div>
+<button id="chatButton" aria-label="Open chat">💬</button>
+<button id="actionButton">INTERACT</button>
 <div id="controls"><div id="joystick"><div id="stick"></div></div><div id="lookHint">DRAG TO LOOK</div></div>
-<button id="chatButton">💬</button><button id="actionButton">INTERACT</button>
 <div id="chat">
-<div class="chat-header"><span>MARA</span><button id="closeChat">×</button></div>
-<div id="chatMessages"><div class="chat-message she-message"><strong>MARA</strong><p>You're awake.</p></div></div>
-<form id="chatForm"><input id="chatInput" type="text" maxlength="160" autocomplete="off" placeholder="Say something..."><button type="submit">SEND</button></form>
+  <div class="chat-header"><span>MARA</span><button id="closeChat">×</button></div>
+  <div id="chatMessages"><div class="chat-message she-message"><strong>MARA</strong><p>You're awake.</p></div></div>
+  <form id="chatForm"><input id="chatInput" maxlength="180" autocomplete="off" placeholder="Say something..."><button>SEND</button></form>
 </div>
-<div id="startScreen"><div class="start-box"><div class="glitch-title">SHE HEARS YOU</div><p>You don't remember coming here.</p><p>Mara says the world outside is ending.</p><button id="startButton" type="button" onclick="startGame(event)">ENTER</button><small>WASD TO MOVE • MOUSE TO LOOK • MOBILE: JOYSTICK + DRAG</small></div></div>
-<div id="endingScreen"><div class="ending-box"><div id="endingTitle">YOU ESCAPED</div><p id="endingText">The door opens.</p><button onclick="location.reload()">PLAY AGAIN</button></div></div>
+<div id="startScreen"><div class="start-box">
+  <div class="glitch-title">SHE HEARS YOU</div>
+  <p>You wake up in a house you don't remember entering.</p>
+  <p>Mara is here. She says you're safe.</p>
+  <button id="startButton">ENTER</button>
+  <small>DESKTOP: WASD + MOUSE + E &nbsp; • &nbsp; MOBILE: JOYSTICK + DRAG + INTERACT</small>
+</div></div>
+<div id="endingScreen"><div class="ending-box">
+  <div id="endingTitle">THE DOOR</div><p id="endingText"></p><button id="againButton">PLAY AGAIN</button>
+</div></div>
 </div>
-<script type="module" src="script.js?v=13"></script>
+<script type="module" src="script.js?v=20"></script>
 </body>
 </html>
