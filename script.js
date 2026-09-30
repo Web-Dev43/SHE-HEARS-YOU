@@ -147,7 +147,7 @@ document.addEventListener("click",()=>{if(started&&!ended&&innerWidth>600&&docum
 addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==="e")interact()});
 addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 function startGame(){if(started)return;started=true;startScreen.style.display="none";objective.textContent="Explore the house.";showMessage("Mara is somewhere in the house.");if(innerWidth>600)canvas.requestPointerLock?.()}
-startButton.addEventListener("pointerdown",e=>{e.preventDefault();startGame()});startButton.addEventListener("click",e=>{e.preventDefault();startGame()});
+window.addEventListener("she-start",startGame);startButton.addEventListener("pointerdown",e=>{e.preventDefault();startGame()});startButton.addEventListener("touchend",e=>{e.preventDefault();startGame()},{passive:false});startButton.addEventListener("click",e=>{e.preventDefault();startGame()});
 $("againButton").addEventListener("click",()=>location.reload());
 
 function update(dt){if(!started||ended)return;let f=(keys.w?1:0)-(keys.s?1:0)-joyY,str=(keys.d?1:0)-(keys.a?1:0)+joyX,n=Math.hypot(f,str);if(n>1){f/=n;str/=n}const speed=3.15,ca=Math.cos(yaw),sa=Math.sin(yaw);movePlayer((ca*f+sa*str)*speed*dt,(sa*f-ca*str)*speed*dt);updateInteraction();maraAI(dt)}
