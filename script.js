@@ -1,4 +1,4 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
 
 const canvas=document.getElementById("world");
 const game=document.getElementById("game");
@@ -101,7 +101,7 @@ function setLook(dx,dy){
 function startGame(){
   gameStarted=true;startScreen.style.display="none";
   showMessage("She's somewhere in the house.");
-  if(innerWidth>600 && canvas.requestPointerLock) canvas.requestPointerLock();
+  if(innerWidth>600 && canvas.requestPointerLock) setTimeout(()=>canvas.requestPointerLock(),50);
 }
 startButton.addEventListener("click",startGame);
 
