@@ -1,0 +1,806 @@
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #08090b;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+#game {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, #17191d 0%, #08090b 70%);
+}
+
+
+/* HUD */
+
+#hud {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.title {
+  font-size: 14px;
+  letter-spacing: 4px;
+  font-weight: 800;
+  color: #eee;
+  text-shadow: 0 0 15px #000;
+}
+
+.objective {
+  padding: 10px 14px;
+  min-width: 170px;
+  background: rgba(0, 0, 0, .65);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+
+.objective span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #888;
+  margin-bottom: 3px;
+}
+
+.objective strong {
+  font-size: 13px;
+}
+
+
+/* HOUSE */
+
+#house {
+  position: absolute;
+  width: min(900px, 90vw);
+  height: min(600px, 72vh);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(90deg,
+      rgba(255,255,255,.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      rgba(255,255,255,.025) 1px,
+      transparent 1px
+    ),
+    #15171a;
+  background-size: 35px 35px;
+  box-shadow:
+    0 0 0 4px #090a0c,
+    0 0 80px rgba(0,0,0,.9);
+  overflow: hidden;
+}
+
+.wall {
+  position: absolute;
+  background: #25282c;
+  z-index: 4;
+}
+
+.wall-top {
+  width: 100%;
+  height: 12px;
+  top: 0;
+}
+
+.wall-bottom {
+  width: 100%;
+  height: 12px;
+  bottom: 0;
+}
+
+.wall-left {
+  width: 12px;
+  height: 100%;
+  left: 0;
+}
+
+.wall-right {
+  width: 12px;
+  height: 100%;
+  right: 0;
+}
+
+.room-label {
+  position: absolute;
+  z-index: 1;
+  color: rgba(255,255,255,.055);
+  font-size: 11px;
+  letter-spacing: 4px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.bedroom-label {
+  top: 30px;
+  left: 35px;
+}
+
+.living-label {
+  top: 30px;
+  right: 40px;
+}
+
+.kitchen-label {
+  bottom: 30px;
+  left: 40px;
+}
+
+
+/* FURNITURE */
+
+.furniture {
+  position: absolute;
+  z-index: 3;
+  background: #202327;
+  border: 2px solid #2d3135;
+  box-shadow: 0 8px 20px rgba(0,0,0,.35);
+}
+
+.bed {
+  width: 170px;
+  height: 95px;
+  left: 35px;
+  top: 80px;
+  border-radius: 8px;
+}
+
+.pillow {
+  position: absolute;
+  width: 50px;
+  height: 30px;
+  left: 10px;
+  top: 10px;
+  background: #46494e;
+  border-radius: 8px;
+}
+
+.blanket {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  width: 90px;
+  height: 75px;
+  background: #292d31;
+  border-radius: 5px;
+}
+
+.couch {
+  width: 190px;
+  height: 65px;
+  right: 45px;
+  top: 85px;
+  display: flex;
+  gap: 5px;
+  padding: 7px;
+  border-radius: 8px;
+}
+
+.couch div {
+  flex: 1;
+  background: #35393d;
+  border-radius: 5px;
+}
+
+.table {
+  width: 150px;
+  height: 80px;
+  left: 55px;
+  bottom: 70px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.table-top {
+  position: absolute;
+  width: 100%;
+  height: 14px;
+  top: 5px;
+  background: #383c40;
+  border-radius: 5px;
+}
+
+.table-leg {
+  position: absolute;
+  width: 8px;
+  height: 65px;
+  top: 16px;
+  background: #272a2d;
+}
+
+.table-leg.one {
+  left: 12px;
+}
+
+.table-leg.two {
+  right: 12px;
+}
+
+.table-leg.three {
+  left: 55px;
+}
+
+.table-leg.four {
+  right: 55px;
+}
+
+
+/* KEY */
+
+#key {
+  position: absolute;
+  z-index: 8;
+  left: 300px;
+  bottom: 115px;
+  font-size: 25px;
+  animation: keyPulse 1.8s infinite;
+  cursor: pointer;
+}
+
+#key span {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-align: center;
+  color: #aaa;
+}
+
+@keyframes keyPulse {
+  50% {
+    filter: drop-shadow(0 0 12px rgba(255,220,100,.8));
+  }
+}
+
+
+/* EXIT */
+
+#exitDoor {
+  position: absolute;
+  z-index: 6;
+  right: 18px;
+  bottom: 40px;
+  width: 65px;
+  height: 110px;
+  background: #111315;
+  border: 3px solid #393d41;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: .2s;
+}
+
+#exitDoor span {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #777;
+}
+
+.door-symbol {
+  font-size: 24px;
+  opacity: .7;
+}
+
+#exitDoor.unlocked {
+  border-color: #a9ff70;
+  box-shadow: 0 0 25px rgba(169,255,112,.25);
+}
+
+
+/* CHARACTERS */
+
+#player,
+#girl {
+  position: absolute;
+  z-index: 10;
+  width: 42px;
+  height: 62px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+#player {
+  left: 50%;
+  top: 72%;
+}
+
+.player-body {
+  position: absolute;
+  width: 25px;
+  height: 35px;
+  left: 9px;
+  top: 18px;
+  background: #8a9aaa;
+  border-radius: 9px 9px 4px 4px;
+}
+
+.player-body::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 2px;
+  top: -14px;
+  border-radius: 50%;
+  background: #d2b09b;
+}
+
+#girl {
+  left: 76%;
+  top: 40%;
+}
+
+.character {
+  position: relative;
+  width: 42px;
+  height: 62px;
+}
+
+.hair {
+  position: absolute;
+  z-index: 2;
+  left: 7px;
+  top: 4px;
+  width: 28px;
+  height: 32px;
+  border-radius: 50% 50% 40% 40%;
+  background: #151216;
+}
+
+.face {
+  position: absolute;
+  z-index: 3;
+  left: 12px;
+  top: 11px;
+  width: 18px;
+  height: 22px;
+  border-radius: 45%;
+  background: #d1a997;
+}
+
+.eye {
+  position: absolute;
+  width: 3px;
+  height: 4px;
+  top: 8px;
+  background: #171016;
+}
+
+.eye.left {
+  left: 4px;
+}
+
+.eye.right {
+  right: 4px;
+}
+
+.body {
+  position: absolute;
+  left: 8px;
+  top: 30px;
+  width: 27px;
+  height: 30px;
+  border-radius: 12px 12px 5px 5px;
+  background: #3b1d27;
+}
+
+.character-shadow {
+  position: absolute;
+  width: 55px;
+  height: 15px;
+  left: -7px;
+  bottom: -1px;
+  background: rgba(0,0,0,.5);
+  border-radius: 50%;
+  filter: blur(5px);
+}
+
+.character-name,
+.player-name {
+  position: absolute;
+  bottom: -18px;
+  width: 100%;
+  text-align: center;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #777;
+}
+
+
+/* MESSAGE */
+
+#message {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: 105px;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  background: rgba(0,0,0,.72);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  font-size: 12px;
+  color: #ddd;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+
+
+/* CHAT */
+
+#chat {
+  position: absolute;
+  z-index: 50;
+  right: 20px;
+  bottom: 75px;
+  width: min(350px, calc(100vw - 30px));
+  height: 380px;
+  background: rgba(10,11,13,.96);
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7);
+  display: none;
+  overflow: hidden;
+}
+
+#chat.open {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  height: 48px;
+  padding: 0 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #292c30;
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+#closeChat {
+  border: none;
+  background: none;
+  color: #aaa;
+  font-size: 25px;
+}
+
+#chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.chat-message {
+  margin-bottom: 14px;
+}
+
+.chat-message strong {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #777;
+  margin-bottom: 5px;
+}
+
+.chat-message p {
+  display: inline-block;
+  max-width: 90%;
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: #1c1f22;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.you-message {
+  text-align: right;
+}
+
+.you-message strong {
+  color: #7e9bb5;
+}
+
+.you-message p {
+  background: #25313b;
+}
+
+.she-message p {
+  background: #281b20;
+}
+
+#chatForm {
+  display: flex;
+  padding: 10px;
+  gap: 8px;
+  border-top: 1px solid #292c30;
+}
+
+#chatInput {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #333;
+  outline: none;
+  border-radius: 7px;
+  padding: 10px;
+  background: #15171a;
+  color: white;
+}
+
+#chatInput:focus {
+  border-color: #777;
+}
+
+#chatForm button {
+  border: none;
+  border-radius: 7px;
+  background: #eee;
+  color: #111;
+  padding: 0 12px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* TALK BUTTON */
+
+#chatButton {
+  position: absolute;
+  z-index: 40;
+  right: 20px;
+  bottom: 20px;
+  padding: 12px 17px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: rgba(15,16,18,.9);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+/* MOBILE CONTROLS */
+
+#controls {
+  position: absolute;
+  z-index: 40;
+  left: 20px;
+  bottom: 20px;
+}
+
+.dpad {
+  width: 135px;
+}
+
+.dpad > button,
+.dpad > div button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #444;
+  border-radius: 7px;
+  background: rgba(15,16,18,.88);
+  color: #ddd;
+  margin: 2px;
+}
+
+.dpad > button {
+  display: block;
+  margin-left: 48px;
+}
+
+.dpad > div {
+  display: flex;
+}
+
+
+/* START SCREEN */
+
+#startScreen,
+#endingScreen {
+  position: absolute;
+  z-index: 100;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #050607;
+  padding: 20px;
+}
+
+.start-box,
+.ending-box {
+  width: min(480px, 100%);
+  text-align: center;
+}
+
+.glitch-title,
+#endingTitle {
+  font-size: clamp(30px, 8vw, 70px);
+  font-weight: 900;
+  letter-spacing: 5px;
+  margin-bottom: 25px;
+  text-shadow:
+    3px 0 #733,
+    -3px 0 #355;
+}
+
+.start-box p,
+.ending-box p {
+  color: #888;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+#startButton,
+.ending-box button {
+  margin-top: 25px;
+  padding: 14px 30px;
+  border: 1px solid #777;
+  background: #eee;
+  color: #111;
+  border-radius: 5px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.start-box small {
+  display: block;
+  margin-top: 25px;
+  color: #444;
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+#endingScreen {
+  display: none;
+}
+
+
+/* EFFECTS */
+
+#game.scared {
+  animation: shake .25s;
+}
+
+@keyframes shake {
+  0%,100% {
+    transform: translate(0);
+  }
+
+  25% {
+    transform: translate(-4px, 2px);
+  }
+
+  50% {
+    transform: translate(4px, -2px);
+  }
+
+  75% {
+    transform: translate(-3px, -1px);
+  }
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+  #hud {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .objective {
+    min-width: 125px;
+    padding: 7px 9px;
+  }
+
+  .objective strong {
+    font-size: 10px;
+  }
+
+  #house {
+    width: 92vw;
+    height: 65vh;
+  }
+
+  .bed {
+    left: 25px;
+    top: 60px;
+    transform: scale(.8);
+    transform-origin: top left;
+  }
+
+  .couch {
+    right: 20px;
+    top: 65px;
+    transform: scale(.8);
+    transform-origin: top right;
+  }
+
+  .table {
+    left: 30px;
+    bottom: 60px;
+    transform: scale(.75);
+    transform-origin: bottom left;
+  }
+
+  #key {
+    left: 46%;
+    bottom: 105px;
+  }
+
+  #exitDoor {
+    right: 12px;
+    bottom: 25px;
+    transform: scale(.8);
+    transform-origin: bottom right;
+  }
+
+  #message {
+    bottom: 125px;
+    width: calc(100% - 30px);
+  }
+
+  #chat {
+    right: 15px;
+    bottom: 75px;
+    height: 360px;
+  }
+
+  #controls {
+    left: 10px;
+    bottom: 10px;
+  }
+
+  #chatButton {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .room-label {
+    font-size: 8px;
+  }
+}
