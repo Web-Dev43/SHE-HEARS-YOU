@@ -16,6 +16,7 @@ const joystick=document.getElementById("joystick");
 const stick=document.getElementById("stick");
 
 let started=false,hasKey=false,ended=false,last=performance.now(),messageTimer;
+let maraAngry=false,maraChasing=false,maraTarget={x:4,y:-2},maraTimer=0;
 const held={};
 let player={x:0,y:6.5,a:0};
 let mara={x:4,y:-2};
@@ -23,22 +24,22 @@ let joyX=0,joyY=0,lookId=null,lx=0,ly=0;
 
 const map=[
 "####################",
+"#........#.........#",
+"#........#.........#",
+"#........#.........#",
+"#........#.........#",
+"#........#.........#",
 "#..................#",
+"#....######........#",
+"#....#.............#",
+"#....#.............#",
+"#....#.............#",
+"#....######........#",
 "#..................#",
-"#....####..........#",
-"#....#..#..........#",
-"#....#..#..........#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
-"#..................#",
+"#........#.........#",
+"#........#.........#",
+"#........#.........#",
+"#........#.........#",
 "####################"
 ];
 
@@ -66,7 +67,28 @@ function move(dt){
  const nx=player.x+(ca*f-sa*str)*3*dt,ny=player.y+(sa*f+ca*str)*3*dt;
  if(!wall(nx,player.y))player.x=nx;if(!wall(player.x,ny))player.y=ny;
  const dx=player.x-mara.x,dy=player.y-mara.y,d=Math.hypot(dx,dy);
- if(d<7&&d>1.8){mara.x+=dx/d*dt*.35;mara.y+=dy/d*dt*.35}
+ if(maraAngry){
+   const speed=maraChasing?1.35:.28;
+   const targetX=maraChasing?player.x:maraTarget.x;
+   const targetY=maraChasing?player.y:maraTarget.y;
+   const tx=targetX-mara.x,ty=targetY-mara.y,td=Math.hypot(tx,ty);
+   if(td>.45){
+     const nx=mara.x+tx/td*speed*dt,ny=mara.y+ty/td*speed*dt;
+     if(!wall(nx,mara.y))mara.x=nx;
+     if(!wall(mara.x,ny))mara.y=ny;
+   }
+   if(!maraChasing&&td<.6){
+     maraTarget={x:Math.random()*12-6,y:Math.random()*10-5};
+   }
+ }else if(d<7&&d>1.8){
+   mara.x+=dx/d*dt*.35;mara.y+=dy/d*dt*.35;
+ }
+ if(maraChasing&&d<1.05){
+   showMessage("Mara caught up with you.");
+   maraChasing=false;
+   maraAngry=false;
+   addMara("Don't run from me again.");
+ }
  check();
 }
 
@@ -100,7 +122,25 @@ chatForm.addEventListener("submit",e=>{
 });
 function addChat(cls,name,text){const w=document.createElement("div");w.className="chat-message "+cls;const s=document.createElement("strong");s.textContent=name;const p=document.createElement("p");p.textContent=text;w.append(s,p);chatMessages.appendChild(w);chatMessages.scrollTop=chatMessages.scrollHeight}
 function addPlayer(t){addChat("you-message","YOU",t)} function addMara(t){addChat("she-message","MARA",t)}
-function reply(raw){const t=raw.toLowerCase();if(t.includes("who are you")||t.includes("your name"))return"My name is Mara.";if(t.includes("hi")||t.includes("hello")||t.includes("hey"))return"Hi. I was wondering when you'd say something.";if(t.includes("key"))return hasKey?"You found it.":"Why are you asking about the key?";if(t.includes("escape")||t.includes("leave"))return hasKey?"You really want to leave?":"You don't have the key.";if(t.includes("help"))return"Tell me what you need.";if(t.includes("where"))return"You're in the house.";return["I heard you.","Keep talking.","I'm listening.","Tell me more."][Math.floor(Math.random()*4)]}
+function reply(raw){
+ const t=raw.toLowerCase().trim();
+ if(/\b(stupid|idiot|hate|shut up|annoying)\b/.test(t)){
+   if(!maraAngry){maraAngry=true;addMara("...Don't talk to me like that.");setTimeout(()=>{maraChasing=true;showMessage("Mara is angry.");},900);return"That wasn't very nice."}
+   return"You're making this worse.";
+ }
+ if(/\b(why|what do you mean|what do u mean|explain)\b/.test(t))return"Because you came here for a reason. You just don't remember it yet.";
+ if(/\b(who are you|your name)\b/.test(t))return"My name is Mara. You knew that.";
+ if(/\b(hi|hello|hey)\b/.test(t))return"Hi. I was wondering when you'd say something.";
+ if(/\b(where am i|where are we)\b/.test(t))return"You're in my house. The one you said you'd never forget.";
+ if(/\b(why am i here|why did you bring me|why am i here)\b/.test(t))return"You asked me to keep you somewhere safe.";
+ if(/\b(key|keys)\b/.test(t))return hasKey?"You found it.":"You're looking for something, aren't you?";
+ if(/\b(escape|leave|get out|let me out)\b/.test(t))return hasKey?"You really want to leave?":"You can't leave yet.";
+ if(/\b(help|save me)\b/.test(t))return"Tell me what you need.";
+ if(/\b(trust)\b/.test(t))return"Trust is something you earn. Remember?";
+ if(/\b(sorry)\b/.test(t))return"I'll decide if I believe you.";
+ if(/\b(what|how|when|who|can you)\b/.test(t))return"I could answer that. But you might not like the answer.";
+ return["I heard you.","Keep talking. I'm listening.","You keep asking questions.","I know you're still there.","Tell me what you're really thinking."][Math.floor(Math.random()*5)];
+}
 
 function setJoy(e){const r=joystick.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=r.width*.34,d=Math.hypot(dx,dy)||1,k=Math.min(1,m/d);joyX=dx/m*k;joyY=dy/m*k;stick.style.left=(50+joyX*34)+"%";stick.style.top=(50+joyY*34)+"%"}
 function resetJoy(){joyX=joyY=0;stick.style.left="50%";stick.style.top="50%"}
@@ -136,6 +176,14 @@ function drawSprite(x,y,size,body,head){
  const scale=h/(dist*2.8),bw=size*scale,bh=scale*2.3;
  ctx.fillStyle=body;ctx.fillRect(sx-bw/2,h/2+bh*.05,bw,bh*.55);
  ctx.fillStyle=head;ctx.beginPath();ctx.arc(sx,h/2-bh*.18,bw*.38,0,Math.PI*2);ctx.fill();
+ if(maraAngry){
+   ctx.fillStyle="#d8d8d8";
+   ctx.beginPath();
+   ctx.moveTo(sx+bw*.34,h/2+bh*.08);
+   ctx.lineTo(sx+bw*.55,h/2+bh*.18);
+   ctx.lineTo(sx+bw*.30,h/2+bh*.20);
+   ctx.closePath();ctx.fill();
+ }
  ctx.fillStyle="#161018";ctx.fillRect(sx-bw*.22,h/2-bh*.23,bw*.12,bw*.12);ctx.fillRect(sx+bw*.10,h/2-bh*.23,bw*.12,bw*.12);
 }
 function drawKey(x,y){
@@ -151,6 +199,13 @@ function drawKey(x,y){
  ctx.strokeStyle="#ffe98a";ctx.lineWidth=Math.max(2,4*scale);ctx.beginPath();ctx.moveTo(-3*scale,0);ctx.lineTo(24*scale,0);ctx.lineTo(24*scale,7*scale);ctx.moveTo(13*scale,0);ctx.lineTo(13*scale,6*scale);ctx.stroke();
  ctx.restore();
 }
-function drawDoor(){const dx=-player.x,dy=8-player.y,dist=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)-player.a,rel=Math.atan2(Math.sin(ang),Math.cos(ang));if(Math.abs(rel)<Math.PI/5){const sx=(.5+rel/(Math.PI/3))*innerWidth,hh=Math.min(innerHeight*.8,innerHeight/(dist*.9));ctx.fillStyle="#111";ctx.fillRect(sx-innerWidth*.07,innerHeight/2-hh/2,innerWidth*.14,hh)}}
+function drawDoor(){
+ const dx=-player.x,dy=8-player.y,dist=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)-player.a,rel=Math.atan2(Math.sin(ang),Math.cos(ang));
+ if(Math.abs(rel)<Math.PI/5){
+   const sx=(.5+rel/(Math.PI/3))*innerWidth,hh=Math.min(innerHeight*.8,innerHeight/(dist*.9));
+   ctx.fillStyle="#141414";ctx.fillRect(sx-innerWidth*.07,innerHeight/2-hh/2,innerWidth*.14,hh);
+   ctx.fillStyle="#777";ctx.fillRect(sx+innerWidth*.035,innerHeight/2,innerWidth*.012,innerHeight*.025);
+ }
+}
 
 function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;move(dt);render();requestAnimationFrame(loop)}requestAnimationFrame(loop);
