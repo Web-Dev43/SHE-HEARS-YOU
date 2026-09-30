@@ -86,7 +86,7 @@ function interact(){
  if(!started||ended)return;
  const a=nearest();if(!a)return;
  if(a.type==="key"){hasKey=true;a.o.visible=false;objective.textContent="Find the front door.";showMessage("A small key. Cold from the drawer.");addMara("You found that? I thought I'd hidden it better.");return}
- if(a.type==="note"){if(!hasNote){hasNote=true;objective.textContent="Find the key. Mara is hiding something.";showMessage("The note says: "She knows when you lie."");addMara("You found the note.");}else showMessage("The note still says: She knows when you lie.");return}
+ if(a.type==="note"){if(!hasNote){hasNote=true;objective.textContent="Find the key. Mara is hiding something.";showMessage('The note says: "She knows when you lie."');addMara("You found the note.");}else showMessage("The note still says: She knows when you lie.");return}
  if(a.type==="drawer"){drawerOpen=!drawerOpen;showMessage(drawerOpen?"The drawer opens with a soft click.":"You close the drawer.");if(drawerOpen&&!hasKey){const k=objects.find(o=>o.type==="key");if(k){k.o.position.set(-4.12,.91,5.02);}}return}
  if(a.type==="door"){showMessage("The door is stuck.");return}
  if(a.type==="frontDoor"){if(hasKey){frontDoorOpen=true;escapeGame()}else showMessage("Locked. The key isn't here.");return}
