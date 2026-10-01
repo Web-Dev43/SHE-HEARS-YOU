@@ -11,15 +11,19 @@ scene.add(new THREE.HemisphereLight(0xffead0,0x6d665f,2.5));const sun=new THREE.
 const colliders=[{x:0,z:-7,w:18,d:.25},{x:-9,z:0,w:.25,d:14},{x:9,z:0,w:.25,d:14},{x:0,z:7,w:18,d:.25},{x:-4,z:-2,w:3.4,d:2.4},{x:4,z:-2.4,w:2.8,d:.8},{x:3,z:2.4,w:2,d:1.1}];
 function blocked(x,z){if(x<-8.5||x>8.5||z<-6.5||z>6.5)return true;for(const c of colliders)if(x>c.x-c.w/2-.28&&x<c.x+c.w/2+.28&&z>c.z-c.d/2-.28&&z<c.z+c.d/2+.28)return true;return false}
 function movePlayer(dx,dz){const nx=camera.position.x+dx,nz=camera.position.z+dz;if(!blocked(nx,camera.position.z))camera.position.x=nx;if(!blocked(camera.position.x,nz))camera.position.z=nz}
-const joystick=document.getElementById("joystick"),stick=document.getElementById("stick");
-function applyJoystick(x,y){const r=joystick.getBoundingClientRect(),dx=x-(r.left+r.width/2),dy=y-(r.top+r.height/2),max=r.width*.34,len=Math.hypot(dx,dy)||1,k=Math.min(1,max/len);joyX=dx/max*k;joyY=dy/max*k;stick.style.left=(50+joyX*34)+"%";stick.style.top=(50+joyY*34)+"%"}
-function resetJoystick(){joyX=joyY=0;joyTouchId=null;stick.style.left="50%";stick.style.top="50%"}
-joystick.addEventListener("touchstart",e=>{e.preventDefault();const t=e.changedTouches[0];if(t){joyTouchId=t.identifier;applyJoystick(t.clientX,t.clientY)}},{passive:false});
-joystick.addEventListener("touchmove",e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joyTouchId){applyJoystick(t.clientX,t.clientY);break}},{passive:false});
-joystick.addEventListener("touchend",e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joyTouchId){resetJoystick();break}},{passive:false});joystick.addEventListener("touchcancel",resetJoystick);
-canvas.addEventListener("touchstart",e=>{if(!started)return;const t=e.changedTouches[0];if(t){lookTouchId=t.identifier;lastLookX=t.clientX;lastLookY=t.clientY}},{passive:true});
-canvas.addEventListener("touchmove",e=>{if(!started||lookTouchId===null)return;for(const t of e.changedTouches)if(t.identifier===lookTouchId){yaw-=(t.clientX-lastLookX)*.006;pitch=THREE.MathUtils.clamp(pitch+(t.clientY-lastLookY)*.006,-1.2,1.2);lastLookX=t.clientX;lastLookY=t.clientY;break}},{passive:true});
-canvas.addEventListener("touchend",e=>{for(const t of e.changedTouches)if(t.identifier===lookTouchId)lookTouchId=null},{passive:true});
+const joystick=document.getElementById("joystick"),stick=document.getElementById("stick"),moveZone=document.getElementById("moveZone"),lookZone=document.getElementById("lookZone");
+let movePointer=null,lookPointer=null;
+function applyJoy(x,y){const r=joystick.getBoundingClientRect(),dx=x-(r.left+r.width/2),dy=y-(r.top+r.height/2),max=r.width*.34,len=Math.hypot(dx,dy)||1,k=Math.min(1,max/len);joyX=dx/max*k;joyY=dy/max*k;stick.style.left=(50+joyX*34)+"%";stick.style.top=(50+joyY*34)+"%"}
+function resetJoy(){movePointer=null;joyX=joyY=0;stick.style.left="50%";stick.style.top="50%"}
+moveZone.addEventListener("pointerdown",e=>{if(!started)return;e.preventDefault();movePointer=e.pointerId;moveZone.setPointerCapture(e.pointerId);applyJoy(e.clientX,e.clientY)},{passive:false});
+moveZone.addEventListener("pointermove",e=>{if(e.pointerId===movePointer){e.preventDefault();applyJoy(e.clientX,e.clientY)}},{passive:false});
+moveZone.addEventListener("pointerup",e=>{if(e.pointerId===movePointer)resetJoy()});
+moveZone.addEventListener("pointercancel",resetJoy);
+moveZone.addEventListener("lostpointercapture",resetJoy);
+lookZone.addEventListener("pointerdown",e=>{if(!started)return;e.preventDefault();lookPointer=e.pointerId;lookZone.setPointerCapture(e.pointerId);lastLookX=e.clientX;lastLookY=e.clientY},{passive:false});
+lookZone.addEventListener("pointermove",e=>{if(e.pointerId===lookPointer){e.preventDefault();yaw-=(e.clientX-lastLookX)*.006;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-lastLookY)*.006,-1.2,1.2);lastLookX=e.clientX;lastLookY=e.clientY}},{passive:false});
+lookZone.addEventListener("pointerup",e=>{if(e.pointerId===lookPointer)lookPointer=null});
+lookZone.addEventListener("pointercancel",e=>{if(e.pointerId===lookPointer)lookPointer=null});
 addEventListener("keydown",e=>{if(e.target.tagName!=="INPUT")keys[e.key.toLowerCase()]=true});addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 function startGame(){if(started)return;started=true;startScreen.style.display="none";diagnostic.style.display="none"}startButton.addEventListener("click",startGame);startButton.addEventListener("touchend",e=>{e.preventDefault();startGame()},{passive:false});
 function update(dt){if(!started)return;let f=(keys.w?1:0)-(keys.s?1:0)-joyY,s=(keys.d?1:0)-(keys.a?1:0)+joyX,n=Math.hypot(f,s);if(n>1){f/=n;s/=n}const speed=3.2,ca=Math.cos(yaw),sa=Math.sin(yaw);movePlayer((ca*f+sa*s)*speed*dt,(sa*f-ca*s)*speed*dt)}
